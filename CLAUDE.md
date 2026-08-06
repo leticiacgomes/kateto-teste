@@ -131,7 +131,13 @@ subagente de revisão de código antes de commit, etc.)
 - [x] Skill de design de front-end (`.claude/skills/frontend-design/SKILL.md`)
       — mobile-first, acessibilidade, proibição de fetching no client,
       aderência ao design system. Aplicada em toda edição de componente React.
-- [ ] Prompt/skill de revisão de código pré-commit
+- [x] Skill de revisão de código pré-commit (`.claude/skills/code-review/SKILL.md`)
+      — `/code-review` revisa staged/unstaged/untracked (ou o projeto
+      inteiro se a árvore estiver limpa) no papel de staff engineer,
+      focada puramente em qualidade de código e corretude funcional
+      (regras de negócio, N+1, auth, docs) — não usa nem expõe critérios
+      do processo seletivo. Ver `docs/DECISOES.md` pelo racional de ter
+      escolhido skill em vez de hook do Claude Code.
 - [ ] Prompt de geração de testes
 
 ## Status / o que falta
