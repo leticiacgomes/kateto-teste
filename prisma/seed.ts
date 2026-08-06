@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient, type Rarity } from "../generated/prisma/client";
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -20,11 +20,13 @@ const DJS = [
         name: "Nova Neon",
         price: "39.90",
         imageUrl: "https://placehold.co/400x400?text=Nova+Neon",
+        rarity: "RARE",
       },
       {
         name: "Nova Eclipse",
         price: "44.90",
         imageUrl: "https://placehold.co/400x400?text=Nova+Eclipse",
+        rarity: "EPIC",
       },
     ],
   },
@@ -37,11 +39,13 @@ const DJS = [
         name: "Voltz Circuito",
         price: "34.90",
         imageUrl: "https://placehold.co/400x400?text=Voltz+Circuito",
+        rarity: "COMMON",
       },
       {
         name: "Voltz Blackout",
         price: "34.90",
         imageUrl: "https://placehold.co/400x400?text=Voltz+Blackout",
+        rarity: "RARE",
       },
     ],
   },
@@ -54,11 +58,13 @@ const DJS = [
         name: "Prisma Aurora",
         price: "42.90",
         imageUrl: "https://placehold.co/400x400?text=Prisma+Aurora",
+        rarity: "EPIC",
       },
       {
         name: "Prisma Refração",
         price: "42.90",
         imageUrl: "https://placehold.co/400x400?text=Prisma+Refracao",
+        rarity: "LEGENDARY",
       },
     ],
   },
@@ -80,22 +86,33 @@ async function main() {
   });
 
   for (const dj of DJS) {
-    await prisma.dj.upsert({
+    const createdDj = await prisma.dj.upsert({
       where: { name: dj.name },
-      update: {},
+      update: { imageUrl: dj.imageUrl, bio: dj.bio },
       create: {
         name: dj.name,
         imageUrl: dj.imageUrl,
         bio: dj.bio,
-        skins: {
-          create: dj.skins.map((skin) => ({
-            name: skin.name,
-            imageUrl: skin.imageUrl,
-            price: skin.price,
-          })),
-        },
       },
     });
+
+    for (const skin of dj.skins) {
+      await prisma.skin.upsert({
+        where: { djId_name: { djId: createdDj.id, name: skin.name } },
+        update: {
+          imageUrl: skin.imageUrl,
+          price: skin.price,
+          rarity: skin.rarity as Rarity,
+        },
+        create: {
+          djId: createdDj.id,
+          name: skin.name,
+          imageUrl: skin.imageUrl,
+          price: skin.price,
+          rarity: skin.rarity as Rarity,
+        },
+      });
+    }
   }
 }
 

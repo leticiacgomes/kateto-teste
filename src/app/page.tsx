@@ -16,6 +16,7 @@ export default async function Home() {
     price: Number(skin.price),
     artUrl: skin.imageUrl,
     cardNumber: String(index + 1).padStart(3, "0"),
+    rarity: skin.rarity.toLowerCase() as DropCard["rarity"],
   }));
 
   const skinOptions = skins.map((skin) => ({

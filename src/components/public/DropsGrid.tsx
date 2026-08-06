@@ -13,17 +13,17 @@ export type DropCard = {
   price: number;
   artUrl?: string | null;
   cardNumber: string;
+  rarity: "common" | "rare" | "epic" | "legendary";
 };
 
-const RARITY_OPTIONS = ["All rarities", "Common"];
+const RARITY_OPTIONS = ["All rarities", "Common", "Rare", "Epic", "Legendary"];
 
 export function DropsGrid({ cards }: { cards: DropCard[] }) {
   const [filter, setFilter] = useState("All rarities");
-  // Rarity isn't part of the current data model (Dj/Skin have no grade field) — every
-  // card renders as "common" for now. Filter kept for parity with the design system;
-  // see docs/DECISOES.md for the note on wiring a real rarity field later.
-  const shown = filter === "All rarities" ? cards : [];
-  
+  const shown =
+    filter === "All rarities"
+      ? cards
+      : cards.filter((card) => card.rarity === filter.toLowerCase());
 
   return (
     <section className="px-10 pt-10 pb-20">
@@ -52,7 +52,7 @@ export function DropsGrid({ cards }: { cards: DropCard[] }) {
             key={card.id}
             name={card.name}
             alias={card.alias}
-            rarity="common"
+            rarity={card.rarity}
             cardNumber={card.cardNumber}
             price={card.price}
             artUrl={card.artUrl ?? undefined}
