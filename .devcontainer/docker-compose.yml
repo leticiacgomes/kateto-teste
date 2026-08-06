@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ../..:/workspaces:cached
+      - claude-config:/home/node/.claude
     command: sleep infinity
     ports:
       - 3000:3000
@@ -22,3 +23,4 @@ services:
 
 volumes:
   postgres-data:
+  claude-config:
