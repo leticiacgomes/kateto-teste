@@ -16,6 +16,10 @@ export const leadRepository = {
     return db.lead.count({ where: { status } });
   },
 
+  findById(db: Db, id: string): Promise<Lead> {
+    return db.lead.findUniqueOrThrow({ where: { id } });
+  },
+
   create(db: Db, data: CreateLeadData): Promise<Lead> {
     return db.lead.create({ data });
   },
