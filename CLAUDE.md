@@ -1,0 +1,125 @@
+# CLAUDE.md — Dropbase
+
+Este arquivo orienta agentes de IA (Claude Code ou similar) trabalhando neste
+repositório. Ele existe porque estou usando Next.js pela primeira vez e estou
+me apoiando fortemente em agentes para acelerar o desenvolvimento dentro do
+prazo do teste técnico. Transparência sobre isso é intencional — ver
+`docs/DECISOES.md` para o racional completo.
+
+## Sobre o projeto
+
+**Dropbase** é uma landing page + CRM simples para venda de figurinhas/skins
+de DJs de música eletrônica. Tem duas partes:
+
+1. **Página pública** — vitrine dos DJs/skins + formulário de contato.
+2. **Área logada** — kanban de leads com 4 colunas fixas (Sem Contato, Em
+   Contato, Perdido, Finalizado), distribuídos automaticamente entre 5
+   vendedores em round robin.
+
+## Stack
+
+- Next.js (App Router) + TypeScript
+- Tailwind CSS
+- Prisma ORM + Postgres
+- NextAuth (Credentials provider) para a área logada
+- @hello-pangea/dnd para drag-and-drop do kanban
+- zod para validação de formulário
+- Vitest para testes da lógica de round robin
+
+Escolhida porque tem o melhor suporte de agentes de IA e documentação
+consolidada, compensando minha falta de experiência prévia com o framework.
+Ver `docs/DECISOES.md`.
+
+## Arquitetura de pastas
+
+```
+src/
+  app/
+    (public)/
+      page.tsx                  # landing pública
+    (dashboard)/
+      dashboard/
+        page.tsx                # kanban (protegido por middleware)
+    api/
+      auth/[...nextauth]/route.ts   # única rota HTTP exigida pelo NextAuth
+
+  actions/
+    lead.actions.ts              # Server Action: criar lead + round robin
+    card.actions.ts              # Server Action: mover card entre colunas
+
+  components/
+    public/                     # seções da landing
+    kanban/                     # colunas, card, drag context
+
+  services/
+    lead.service.ts             # regra de negócio (round robin)
+    auth.service.ts
+
+  repositories/
+    lead.repository.ts          # queries Prisma de Lead
+    settings.repository.ts      # ponteiro do round robin
+    representative.repository.ts
+
+  validators/
+    lead.schema.ts               # validação zod do formulário
+
+  lib/
+    prisma.ts
+
+  types/
+```
+
+## Como o agente deve trabalhar aqui
+
+### Meu papel vs. papel do agente
+- **Eu decido**: identidade visual, conceito da landing, regras de negócio,
+  estrutura de dados, prioridades de tempo.
+- **Agente executa**: escrita de código dentro dessas decisões, sugestões de
+  padrões idiomáticos de Next.js/Prisma (que eu não conheço), scaffolding de
+  componentes, geração de testes, revisão de código antes de commit.
+- Toda sugestão estrutural relevante do agente (ex: mudar abordagem de
+  autenticação, trocar biblioteca) é registrada em `docs/DECISOES.md` com
+  quem sugeriu e por quê foi aceita/recusada.
+
+### Convenções de código
+- TypeScript estrito onde possível; evitar `any`.
+- Server Actions para mutações (form de lead, mover card), em `actions/`,
+  chamando `services/` que orquestram `repositories/`.
+- Lógica de domínio (ex: round robin) vive em `services/`, isolada de
+  componentes React e de Server Actions, para ser testável sem renderizar UI
+  nem subir nenhuma rota.
+- Nomes em inglês, sempre.
+- Commits pequenos e descritivos, um por etapa concluída.
+
+### O que o agente NÃO deve fazer sozinho
+- Não decidir a regra de round robin sem confirmar comigo — é o core do
+  teste, quero que eu entenda 100% dela.
+- Não introduzir serviços externos pagos ou complexidade desnecessária
+  (ex: filas, microsserviços) — o teste pede simplicidade funcional.
+- Não remover validações para "simplificar".
+
+## Lógica de round robin (crítica)
+
+Ordem fixa: Marcelo → Rafael → Renato → Pedro → Leonardo → (repete).
+
+- Persistida no banco (tabela `RoundRobinState`, ponteiro do próximo índice),
+  não em memória — precisa sobreviver a reinícios do servidor/deploys.
+- Atribuição roda dentro de uma transaction do Prisma para evitar dois leads
+  simultâneos "roubarem" o mesmo vendedor.
+- Implementada em `services/lead.service.ts` e testada isoladamente em
+  `services/lead.service.test.ts`.
+
+## Skills / prompts específicos usados
+
+(Preencher conforme for criando durante o desenvolvimento — ex: prompt usado
+para gerar o design system da landing, prompt para revisar acessibilidade,
+subagente de revisão de código antes de commit, etc.)
+
+- [ ] Prompt/skill de revisão de código pré-commit
+- [ ] Prompt de geração de testes
+
+## Status / o que falta
+
+Ver `README.md` para instruções de setup e `docs/DECISOES.md` para decisões
+técnicas e trade-offs. Itens não concluídos por falta de tempo estão listados
+no README com o que seria feito a seguir.
