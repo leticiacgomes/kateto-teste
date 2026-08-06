@@ -10,6 +10,10 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env.DATABASE_URL,
+    // CLI-only (generate/migrate/studio) — usa a conexão direta pra evitar
+    // que `migrate deploy` tente tirar advisory lock via pooler (PgBouncer
+    // em modo transaction não sustenta lock de sessão -> timeout P1002).
+    // Runtime da app (src/lib/prisma.ts) continua na pooled via DATABASE_URL.
+    url: process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL,
   },
 });

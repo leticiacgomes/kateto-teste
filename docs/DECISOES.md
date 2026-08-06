@@ -667,3 +667,34 @@ desambiguar o que já existia do kanban, renomeando para `LeadCard`:
 suficientemente clara e não mudou de nome) e o componente
 `ui/surfaces/KanbanCard.tsx` → `ui/surfaces/LeadCard.tsx` (`KanbanCard` →
 `LeadCard`, `KanbanCardProps` → `LeadCardProps`).
+
+## `DATABASE_URL_UNPOOLED` para o Prisma CLI em deploy (2026-08-06)
+
+**Problema**: `npx prisma migrate deploy` no deploy travava com
+`P1002 Timed out trying to acquire a postgres advisory lock`. A causa é
+`DATABASE_URL` em produção apontar pra uma conexão com pooler (ex:
+PgBouncer/Neon/Supabase em modo transaction), que não sustenta lock de
+sessão — o Migrate usa `pg_advisory_lock` pra impedir duas migrations
+concorrentes, e isso trava/expira através desse tipo de pooler.
+
+**Sugestão do agente, aceita pelo usuário**: `prisma.config.ts` (usado só
+pelo Prisma CLI — generate/migrate/studio, nunca pelo runtime da app) passa
+a resolver `datasource.url` com fallback:
+`process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL`. Em
+produção, `DATABASE_URL_UNPOOLED` (conexão direta, sem pooler) precisa
+estar configurada no ambiente de deploy — o usuário confirmou que essa
+variável já existe lá, só não estava sendo referenciada em lugar nenhum do
+projeto. Em dev local (docker-compose) não existe pooler, então a variável
+fica de fora do `.env` e cai no fallback pra `DATABASE_URL` sem quebrar
+nada. O runtime da app (`src/lib/prisma.ts`) não muda — continua lendo
+`DATABASE_URL` (pooled) direto via `pg.Pool`, porque esse arquivo nunca
+importa `prisma.config.ts`.
+
+**Nota à parte, não uma decisão de produto**: a skill `prisma-upgrade-v7`
+documenta um campo `datasource.directUrl` em `prisma.config.ts` como
+alternativa mais idiomática a esse fallback manual, mas o pacote realmente
+instalado (`@prisma/config@7.9.1`) não tem esse campo — nem no tipo
+(`Datasource` só tem `url`/`shadowDatabaseUrl`) nem no runtime do schema
+engine. Por isso foi usado o fallback via `??` em vez de `directUrl`. Vale
+reconferir quando a versão do Prisma for atualizada, caso o campo seja
+adicionado de fato.
