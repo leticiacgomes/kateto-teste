@@ -11,5 +11,12 @@
     "features": {
         "ghcr.io/devcontainers/features/sshd:1": {}
     },
-    "remoteUser": "node"
+    "remoteUser": "node",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "biomejs.biome"
+            ]
+        }
+    }
 }

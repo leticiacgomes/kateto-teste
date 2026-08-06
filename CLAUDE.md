@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # CLAUDE.md — Dropbase
 
 Este arquivo orienta agentes de IA (Claude Code ou similar) trabalhando neste
