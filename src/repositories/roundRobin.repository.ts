@@ -1,10 +1,5 @@
-import type {
-  Prisma,
-  PrismaClient,
-  RoundRobinState,
-} from "../../generated/prisma/client";
-
-type Db = PrismaClient | Prisma.TransactionClient;
+import type { RoundRobinState } from "../../generated/prisma/client";
+import type { Db } from "../../types/prisma";
 
 // Linha única (id fixo = 1) que guarda o ponteiro do round robin.
 const ROUND_ROBIN_STATE_ID = 1;

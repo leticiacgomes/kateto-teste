@@ -1,11 +1,5 @@
-import type {
-  Lead,
-  LeadStatus,
-  Prisma,
-  PrismaClient,
-} from "../../generated/prisma/client";
-
-type Db = PrismaClient | Prisma.TransactionClient;
+import type { Lead, LeadStatus } from "../../generated/prisma/client";
+import type { Db } from "../../types/prisma";
 
 export type CreateLeadData = {
   name: string;

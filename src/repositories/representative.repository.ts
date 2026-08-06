@@ -1,10 +1,5 @@
-import type {
-  Prisma,
-  PrismaClient,
-  Representative,
-} from "../../generated/prisma/client";
-
-type Db = PrismaClient | Prisma.TransactionClient;
+import type { Representative } from "../../generated/prisma/client";
+import type { Db } from "../../types/prisma";
 
 export const representativeRepository = {
   findByOrder(db: Db, order: number): Promise<Representative> {
