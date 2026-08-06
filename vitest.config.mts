@@ -9,6 +9,6 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    setupFiles: ["./tests/prisma.mock.ts"],
+    setupFiles: ["./tests/prisma.mock.ts", "./tests/auth.mock.ts"],
   },
 });

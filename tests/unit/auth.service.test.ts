@@ -5,24 +5,18 @@ vi.mock("@/repositories/user.repository", () => ({
   userRepository: { findByEmail: vi.fn() },
 }));
 
-// Mocks síntéticos: `login()` importa `@/auth` e `next-auth` de forma
-// adiada (ver src/services/auth.service.ts) justamente pra evitar carregar
-// o NextAuth de verdade — que puxa `next/server` e quebra sob Vitest. Um
-// `vi.importActual` aqui reintroduziria o mesmo problema, então os mocks
-// não tocam o pacote real em nenhum momento.
-class MockAuthError extends Error {}
-const signInMock = vi.fn();
-vi.mock("@/auth", () => ({ signIn: signInMock }));
-vi.mock("next-auth", () => ({ AuthError: MockAuthError }));
-
 import { userRepository } from "@/repositories/user.repository";
 import { authService } from "@/services/auth.service";
+// `login()` importa `@/auth` e `next-auth` de forma adiada (ver
+// src/services/auth.service.ts) justamente pra evitar carregar o NextAuth de
+// verdade — que puxa `next/server` e quebra sob Vitest. tests/auth.mock.ts
+// centraliza esse mock (mesmo padrão de tests/prisma.mock.ts).
+import { AuthError, signInMock } from "../auth.mock";
 
 const findByEmailMock = vi.mocked(userRepository.findByEmail);
 
 beforeEach(() => {
   findByEmailMock.mockReset();
-  signInMock.mockReset();
 });
 
 describe("authService.verifyCredentials", () => {
@@ -96,7 +90,7 @@ describe("authService.login", () => {
   });
 
   it("traduz AuthError em ApplicationError com mensagem segura", async () => {
-    signInMock.mockRejectedValueOnce(new MockAuthError("CredentialsSignin"));
+    signInMock.mockRejectedValueOnce(new AuthError("CredentialsSignin"));
 
     await expect(
       authService.login("admin@dropbase.com", "wrong-password"),
