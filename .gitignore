@@ -43,5 +43,9 @@ next-env.d.ts
 /generated/prisma
 
 /.agents
-/.claude
+/.claude/*
 /.windsurf
+
+!/.claude/skills
+/.claude/skills/*
+!/.claude/skills/django-to-nextjs
