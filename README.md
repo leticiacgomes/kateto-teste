@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dropbase
 
-## Getting Started
+Landing page + CRM simples para venda de figurinhas/skins de DJs de música
+eletrônica — teste técnico. Duas partes: vitrine pública com formulário de
+contato, e uma área logada com kanban de leads (4 colunas fixas) distribuídos
+automaticamente entre 5 vendedores em round robin.
 
-First, run the development server:
+Ver `CLAUDE.md` para a arquitetura de pastas e convenções de código, e
+`docs/DECISOES.md` para o racional das decisões técnicas e trade-offs
+considerados.
+
+## Stack
+
+Next.js (App Router) + TypeScript, Tailwind CSS, Prisma ORM + Postgres,
+NextAuth (Credentials) na área logada, Vitest.
+
+## Setup
+
+O projeto roda dentro do container `app` do `.devcontainer/docker-compose.yml`
+(Postgres + Node). Duas formas de subir:
+
+### Via `dev.sh` (sem precisar do VS Code)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env   # ajuste AUTH_SECRET (openssl rand -base64 32)
+./dev.sh --setup
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`--setup` faz tudo: sobe os containers, espera o Postgres ficar pronto,
+`pnpm install`, migrations + seed do banco, e sobe o Next.js em
+[http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Comandos individuais, se precisar rodar passo a passo:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+./dev.sh --up         # sobe db + app em background
+./dev.sh --install    # pnpm install dentro do container app
+./dev.sh --db:setup   # prisma migrate dev + generate
+./dev.sh --seed       # popula DJs/skins + cria o usuário admin
+./dev.sh --dev        # sobe o Next.js em http://localhost:3000
+./dev.sh --shell      # abre um shell dentro do container app
+./dev.sh --down       # derruba os containers
+```
 
-## Learn More
+### Dentro do VS Code (Dev Containers)
 
-To learn more about Next.js, take a look at the following resources:
+Com a extensão Dev Containers, use "Reopen in Container" — o VS Code sobe o
+compose e dá attach automaticamente no `app`. No terminal integrado:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+pnpm db:setup
+pnpm db:seed
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Login da área logada
 
-## Deploy on Vercel
+Credenciais definidas em `ADMIN_EMAIL`/`ADMIN_PASSWORD` no `.env` (usadas
+pelo seed para criar o usuário admin). Default se omitidos:
+`admin@dropbase.com` / `dropbase123` — ver `.env.example`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Testes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm test   # vitest — lógica de round robin e demais services/actions
+```
+
+## Status / o que falta
+
+- `Lead.position` (ordem dos cards dentro de uma coluna do kanban) é um
+  `Int` simples, renumerado por inteiro a cada movimentação — funcional para
+  o volume esperado, mas o próximo passo seria trocar para fractional
+  indexing (`Float`, padrão Trello) pra não tocar em cards não movidos. Ver
+  `docs/DECISOES.md`.
+- Varredura de responsividade/design system foi revisada por código mas não
+  validada visualmente em navegador (sem Chromium disponível neste
+  ambiente) — próximo passo manual antes de dar por fechada.
+- Round robin sob tráfego alto: mecanismo atual (`SELECT ... FOR UPDATE`)
+  é correto para o volume deste teste; alternativas para escala (Redis
+  `INCR`, fila via QStash) foram avaliadas e documentadas, não
+  implementadas — sem pico real a resolver. Ver `docs/DECISOES.md`.
