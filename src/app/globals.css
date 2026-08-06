@@ -4,3 +4,9 @@
 body {
   @apply bg-surface-app text-fg-body font-ui;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

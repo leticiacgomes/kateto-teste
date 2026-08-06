@@ -1,14 +1,8 @@
-"use client";
-
-import { Button } from "@/components/ui/forms/Button";
-
-function scrollToContact() {
-  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-}
+import { ButtonLink } from "@/components/ui/forms/ButtonLink";
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line-subtle bg-surface-app/72 px-5 py-4 backdrop-blur-[14px] sm:px-10">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line-subtle bg-surface-app/72 px-5 backdrop-blur-[14px] sm:px-10">
       <div className="flex items-center gap-10">
         <div className="font-display text-h4 font-bold tracking-heading text-fg-strong">
           dropbase
@@ -18,9 +12,9 @@ export function Nav() {
         </div>
       </div>
       <div className="flex items-center gap-3.5">
-        <Button size="sm" onClick={scrollToContact}>
+        <ButtonLink href="#contact" size="sm">
           Monte sua coleção
-        </Button>
+        </ButtonLink>
       </div>
     </header>
   );

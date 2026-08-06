@@ -23,6 +23,28 @@ const variantClasses = {
 export type ButtonVariant = keyof typeof variantClasses;
 export type ButtonSize = keyof typeof sizeClasses;
 
+export function buttonClasses({
+  variant = "primary",
+  size = "md",
+  fullWidth = false,
+  className,
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+  className?: string;
+}) {
+  return cn(
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm font-ui font-semibold leading-none",
+    "transition-[background-color,box-shadow,border-color,transform] duration-[140ms] ease-standard",
+    "cursor-pointer active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45",
+    fullWidth ? "w-full" : "w-auto",
+    sizeClasses[size] || sizeClasses.md,
+    variantClasses[variant] || variantClasses.primary,
+    className,
+  );
+}
+
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -47,15 +69,7 @@ export function Button(props: ButtonProps) {
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={cn(
-        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm font-ui font-semibold leading-none",
-        "transition-[background-color,box-shadow,border-color,transform] duration-[140ms] ease-standard",
-        "cursor-pointer active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45",
-        fullWidth ? "w-full" : "w-auto",
-        sizeClasses[size] || sizeClasses.md,
-        variantClasses[variant] || variantClasses.primary,
-        className,
-      )}
+      className={buttonClasses({ variant, size, fullWidth, className })}
       {...rest}
     >
       {children}

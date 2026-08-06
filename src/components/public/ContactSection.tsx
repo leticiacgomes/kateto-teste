@@ -16,7 +16,7 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
   return (
     <section
       id="contact"
-      className="border-t border-line-subtle bg-surface-app-deep px-5 py-14 sm:px-10 sm:py-20"
+      className="scroll-mt-16 border-t border-line-subtle bg-surface-app-deep px-5 py-14 sm:px-10 sm:py-20"
     >
       <div className="mx-auto grid max-w-[1000px] grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
         <div>

@@ -30,7 +30,7 @@ export function DropsGrid({ cards }: { cards: DropCard[] }) {
     filter === "all" ? cards : cards.filter((card) => card.rarity === filter);
 
   return (
-    <section className="px-5 pt-10 pb-20 sm:px-10">
+    <section id="drops" className="scroll-mt-16 px-5 pt-10 pb-20 sm:px-10">
       <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-2 font-mono text-caption uppercase tracking-label text-magenta-400">

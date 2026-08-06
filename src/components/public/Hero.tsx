@@ -1,19 +1,7 @@
-"use client";
-
 import type { DropCard } from "@/components/public/DropsGrid";
 import { Badge } from "@/components/ui/display/Badge";
-import { Button } from "@/components/ui/forms/Button";
+import { ButtonLink } from "@/components/ui/forms/ButtonLink";
 import { TradingCard } from "@/components/ui/surfaces/TradingCard";
-
-function scrollToContact() {
-  document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-}
-
-function scrollToCatalog() {
-  document
-    .getElementById("hero")
-    ?.nextElementSibling?.scrollIntoView({ behavior: "smooth" });
-}
 
 const STACK_LAYOUT = [
   { x: 0, y: 0, scale: 1, z: 4, opacity: 1 },
@@ -66,10 +54,7 @@ function HeroCardStack({ cards }: { cards: DropCard[] }) {
 
 export function Hero({ cards = [] }: { cards?: DropCard[] }) {
   return (
-    <section
-      id="hero"
-      className="relative overflow-hidden px-5 pt-16 pb-12 sm:px-10 sm:pt-24 sm:pb-18"
-    >
+    <section className="relative flex min-h-[calc(100dvh-4rem)] flex-col justify-center overflow-hidden px-5 py-16 sm:px-10 sm:py-24">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(58%_60%_at_68%_22%,rgba(255,47,208,0.18),transparent_70%)]" />
       <div className="relative mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
         <div className="text-center lg:text-left">
@@ -88,12 +73,12 @@ export function Hero({ cards = [] }: { cards?: DropCard[] }) {
             e dos grandes artistas.
           </p>
           <div className="flex flex-col justify-center gap-3.5 sm:flex-row lg:justify-start">
-            <Button size="lg" onClick={scrollToContact}>
+            <ButtonLink href="#contact" size="lg">
               QUERO MEU CARD
-            </Button>
-            <Button size="lg" variant="secondary" onClick={scrollToCatalog}>
+            </ButtonLink>
+            <ButtonLink href="#drops" size="lg" variant="secondary">
               Ver catálogo
-            </Button>
+            </ButtonLink>
           </div>
         </div>
         <HeroCardStack cards={cards} />
