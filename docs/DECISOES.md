@@ -574,3 +574,73 @@ ambiente não tem `chromium-cli`/Playwright/Puppeteer instalado, então as
 mudanças de layout responsivo (grid stacking, off-canvas sidebar,
 bottom-sheet) não foram vistas renderizadas, só revisadas por código. Fica
 como próximo passo manual antes de considerar essa varredura 100% fechada.
+
+## Round robin sob carga alta: alternativas consideradas e não implementadas (2026-08-06)
+
+**Contexto**: o mecanismo atual (`roundRobinRepository.getRoundRobinState` —
+`SELECT ... FOR UPDATE` na linha única de `RoundRobinState`, dentro da mesma
+transaction que cria o `Lead`, ver seção "Modelagem do banco") está correto
+e é suficiente pro volume esperado deste teste técnico. Registrado aqui,
+depois de revisão com o agente, o que aconteceria sob tráfego muito mais
+alto e os dois caminhos de evolução considerados — nenhum implementado,
+por não haver pico real a resolver e por contrariar a simplicidade que o
+`CLAUDE.md` pede, mas documentado porque demonstra a análise do trade-off,
+que é o que este teste avalia.
+
+**O problema em escala**: o `FOR UPDATE` serializa toda criação de lead na
+mesma linha (`id = 1`) — sob um pico de submissões simultâneas, cada
+transaction concorrente fica na fila esperando a anterior liberar o lock, e
+cada uma dessas transactions em espera segura uma conexão do pool aberta.
+O risco real não é lentidão gradual, é esgotamento do connection pool sob
+uma rajada, o que derruba a aplicação inteira em vez de só deixá-la lenta.
+
+**Alternativa 1 — contador atômico em Redis (`INCR`), dual-write com o
+Postgres**: em vez de `SELECT FOR UPDATE` + `UPDATE` no Postgres, o índice
+do próximo vendedor seria decidido por um `INCR` atômico em Redis
+(operação single-threaded da própria engine, sem lock de linha, ordens de
+magnitude mais rápida que a transaction atual), e só depois o Postgres
+seria usado pra gravar o `Lead` de forma durável, sem mais precisar de lock
+na `RoundRobinState`. Ganho: elimina a fila de transactions presas no
+Postgres. Custo: passam a existir duas fontes de verdade (contador no Redis
+e leads no Postgres) que podem divergir — reinício do Redis sem
+persistência (`AOF`/`RDB`) zera o contador mesmo com leads já gravados;
+crash da aplicação entre o `INCR` e o `INSERT` consome um índice sem gerar
+lead correspondente. Exigiria uma rotina de reconciliação (ex: resincronizar
+o contador a partir de `SELECT count(*) FROM "Lead"` no boot) pra não
+desalinhar de vez — complexidade nova pra resolver um problema de
+throughput que este projeto não tem.
+
+**Alternativa 2 — fila (QStash) desacoplando ingestão de processamento**:
+em vez de criar o `Lead` de forma síncrona dentro da Server Action do
+formulário público, a action publicaria a mensagem no QStash e responderia
+de imediato; o QStash entrega a mensagem a um webhook com concorrência
+configurável (ex: no máximo 5 processando por vez), controlando quantas
+transactions tocam o Postgres simultaneamente em vez de deixar um pico
+bruto de requests brigar pelo lock ao mesmo tempo. Ganho: protege o pool de
+conexões de uma rajada, sem mudar a lógica de round robin em si (o
+`FOR UPDATE` continua existindo dentro do worker que processa a fila).
+Custo: (a) muda o contrato da UI — `ContactSection` hoje só mostra "Você
+está na lista" depois do lead já criado; com fila, a confirmação vira
+"recebemos sua solicitação", sem garantia de processamento no momento da
+resposta; (b) exige verificação de assinatura (`Upstash-Signature`) no
+endpoint que recebe o webhook e uma chave de idempotência, já que o QStash
+reentrega em caso de falha/timeout e sem dedupe isso duplicaria o lead;
+(c) em produção o QStash precisa de uma URL pública HTTPS pra entregar a
+mensagem — pra desenvolvimento local isso não é um bloqueio, porque existe
+um servidor de dev local (`npx @upstash/qstash-cli dev`, ou a imagem Docker
+`qstash:latest qstash dev`) que simula o serviço inteiro sem tunelamento,
+mas ainda seria mais um serviço no `docker-compose` e mais uma peça no
+setup documentado no README.
+
+**Decisão**: não implementar nenhuma das duas agora. O `CLAUDE.md` já pede
+simplicidade funcional e explicitamente pede confirmação antes de
+"introduzir serviços externos pagos ou complexidade desnecessária (ex:
+filas, microsserviços)" — não há pico de tráfego real neste teste que
+justifique a troca, e o mecanismo atual (`FOR UPDATE` numa única
+transaction) já é correto, testado e sobrevive a reinício/redeploy (ver
+"Modelagem do banco"). Fica registrado como o caminho de evolução caso o
+produto precisasse suportar tráfego real: QStash (Alternativa 2) seria a
+escolha preferida sobre o dual-write em Redis (Alternativa 1), porque não
+introduz uma segunda fonte de verdade para o índice do round robin — só
+controla a taxa de chegada no Postgres, que já é a fonte de verdade única
+hoje.
