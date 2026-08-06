@@ -10,10 +10,10 @@ prazo do teste técnico. Transparência sobre isso é intencional — ver
 
 ## Sobre o projeto
 
-**Dropbase** é uma landing page + CRM simples para venda de figurinhas/skins
+**Dropbase** é uma landing page + CRM simples para venda de figurinhas/cards
 de DJs de música eletrônica. Tem duas partes:
 
-1. **Página pública** — vitrine dos DJs/skins + formulário de contato.
+1. **Página pública** — vitrine dos DJs/cards + formulário de contato.
 2. **Área logada** — kanban de leads com 4 colunas fixas (Sem Contato, Em
    Contato, Perdido, Finalizado), distribuídos automaticamente entre 5
    vendedores em round robin.
@@ -50,26 +50,26 @@ src/
 
   actions/
     lead.actions.ts                # Server Action: criar lead + round robin
-    card.actions.ts                # Server Action: mover card entre colunas
+    leadCard.actions.ts            # Server Action: mover card do lead entre colunas
     auth.actions.ts                # Server Action: login
 
   components/
     public/                        # seções da landing
-    kanban/                        # colunas, card, drag context (dnd-kit)
+    kanban/                        # colunas, card do lead, drag context (dnd-kit)
     auth/                          # LoginForm
     ui/                            # design system (display/forms/surfaces)
 
   services/
     lead.service.ts                # orquestra criação de lead + round robin (transaction)
     round-robin.service.ts         # regra pura do round robin (sem I/O)
-    card.service.ts                # mover/reordenar card entre colunas
+    leadCard.service.ts            # mover/reordenar card do lead entre colunas
     auth.service.ts
 
   repositories/
     lead.repository.ts             # queries Prisma de Lead
     roundRobin.repository.ts       # ponteiro do round robin
     representative.repository.ts
-    skin.repository.ts
+    card.repository.ts
     user.repository.ts
 
   validators/
@@ -123,7 +123,7 @@ tests/
   coluna do kanban), uma única query raw (`$executeRaw`/`$queryRaw` com
   `Prisma.sql`/`Prisma.join`) dentro da mesma transaction. Isso vale tanto
   pra `repositories/` quanto pra qualquer loop em `services/` que dispare
-  queries. Ver `services/card.service.ts` +
+  queries. Ver `services/leadCard.service.ts` +
   `repositories/lead.repository.ts#reorderColumn` como referência do
   padrão, e `docs/DECISOES.md` pelo caso que motivou essa regra.
 

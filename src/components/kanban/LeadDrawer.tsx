@@ -92,9 +92,9 @@ export function LeadDrawer({
           </div>
 
           <div className={rowClass}>
-            <span className="text-fg-faint">Skin de interesse</span>
+            <span className="text-fg-faint">Card de interesse</span>
             <span className="font-mono text-body-sm text-fg-body">
-              {lead.djName} — {lead.skinName}
+              {lead.djName} — {lead.cardName}
             </span>
           </div>
           <div className={rowClass}>
@@ -104,7 +104,7 @@ export function LeadDrawer({
           <div className={rowClass}>
             <span className="text-fg-faint">Valor</span>
             <span className="font-mono text-body-sm font-bold text-fg-strong">
-              ${formatPrice(lead.skinPrice)}
+              ${formatPrice(lead.cardPrice)}
             </span>
           </div>
           <div className={rowClass}>

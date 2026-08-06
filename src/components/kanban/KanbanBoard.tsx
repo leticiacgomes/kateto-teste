@@ -22,7 +22,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/display/Badge";
 import { STATUS } from "@/components/ui/display/StatusPill";
-import { KanbanCard } from "@/components/ui/surfaces/KanbanCard";
+import { LeadCard } from "@/components/ui/surfaces/LeadCard";
 import { cn } from "@/lib/cn";
 import { formatPrice } from "@/lib/format";
 
@@ -33,9 +33,9 @@ export type KanbanLead = {
   name: string;
   phone: string;
   status: LeadStatusKey;
-  skinName: string;
+  cardName: string;
   djName: string;
-  skinPrice: number;
+  cardPrice: number;
   updatedLabel: string;
 };
 
@@ -73,11 +73,11 @@ function SortableCard({
       {...attributes}
       {...listeners}
     >
-      <KanbanCard
+      <LeadCard
         name={lead.name}
         handle={lead.phone}
-        want={`${lead.djName} — ${lead.skinName}`}
-        value={lead.skinPrice}
+        want={`${lead.djName} — ${lead.cardName}`}
+        value={lead.cardPrice}
         status={lead.status}
         updated={lead.updatedLabel}
         onClick={() => onOpen(lead.id)}
@@ -97,7 +97,7 @@ function Column({
 }) {
   const { setNodeRef } = useDroppable({ id: statusKey });
   const s = STATUS[statusKey];
-  const total = items.reduce((sum, l) => sum + l.skinPrice, 0);
+  const total = items.reduce((sum, l) => sum + l.cardPrice, 0);
 
   return (
     <div className="flex max-h-full w-[280px] shrink-0 flex-col rounded-card border border-line-subtle bg-surface-1">
@@ -243,11 +243,11 @@ export function KanbanBoard({
       </div>
       <DragOverlay>
         {activeLead ? (
-          <KanbanCard
+          <LeadCard
             name={activeLead.name}
             handle={activeLead.phone}
-            want={`${activeLead.djName} — ${activeLead.skinName}`}
-            value={activeLead.skinPrice}
+            want={`${activeLead.djName} — ${activeLead.cardName}`}
+            value={activeLead.cardPrice}
             status={activeLead.status}
             updated={activeLead.updatedLabel}
           />

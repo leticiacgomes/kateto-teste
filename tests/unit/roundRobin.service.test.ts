@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { roundRobinService } from "../../src/services/round-robin.service";
+import { roundRobinService } from "../../src/services/roundRobin.service";
 
 describe("roundRobinService.computeNextIndex", () => {
   it("avança pro próximo índice dentro da fila", () => {

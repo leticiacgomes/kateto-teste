@@ -49,6 +49,7 @@ export function Avatar(props: AvatarProps) {
       )}
     >
       {src ? (
+        // biome-ignore lint/performance/noImgElement: <img> is fine here, we don't need next/image for avatars
         <img src={src} alt={name} className="h-full w-full object-cover" />
       ) : (
         initials(name)

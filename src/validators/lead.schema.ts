@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { LeadStatus } from "../../generated/prisma/enums";
 
 // Telefone BR: aceita formatação livre (espaços, parênteses, traço, +55),
 // mas exige 10 ou 11 dígitos no total (fixo ou celular com 9º dígito).
@@ -23,7 +24,14 @@ export const createLeadSchema = zfd.formData({
         "Informe um telefone válido com DDD.",
       ),
   ),
-  skinId: zfd.text(z.string().trim().min(1, "Selecione uma skin.")),
+  cardId: zfd.text(z.string().trim().min(1, "Selecione um card.")),
+});
+
+export const moveLeadSchema = z.object({
+  leadId: z.string().min(1),
+  status: z.enum(LeadStatus),
+  index: z.number().int().min(0),
 });
 
 export type CreateLeadFormInput = z.infer<typeof createLeadSchema>;
+export type MoveLeadFormInput = z.infer<typeof moveLeadSchema>;

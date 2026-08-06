@@ -1,16 +1,15 @@
-import { Prisma } from "../../generated/prisma/client";
 import type { Lead, LeadStatus } from "../../generated/prisma/client";
+import { Prisma } from "../../generated/prisma/client";
 import type { Db } from "../../types/prisma";
 
 export type CreateLeadData = {
   name: string;
   phone: string;
-  skinId: string;
+  cardId: string;
   representativeId: string;
   status: LeadStatus;
   position: number;
 };
-
 
 export const leadRepository = {
   countByStatus(db: Db, status: LeadStatus): Promise<number> {
@@ -24,7 +23,7 @@ export const leadRepository = {
   listAllWithDetails(db: Db) {
     return db.lead.findMany({
       include: {
-        skin: { include: { dj: { select: { id: true, name: true } } } },
+        card: { include: { dj: { select: { id: true, name: true } } } },
         representative: { select: { id: true, name: true } },
       },
       orderBy: { position: "asc" },

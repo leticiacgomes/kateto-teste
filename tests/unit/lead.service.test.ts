@@ -33,7 +33,7 @@ describe("leadService.createLead", () => {
       id: "lead-1",
       name: "Fulano",
       phone: "11999999999",
-      skinId: "skin-1",
+      cardId: "card-1",
       representativeId: marcelo.id,
       status: LeadStatus.SEM_CONTATO,
       position: 3,
@@ -44,7 +44,7 @@ describe("leadService.createLead", () => {
     const lead = await leadService.createLead({
       name: "Fulano",
       phone: "11999999999",
-      skinId: "skin-1",
+      cardId: "card-1",
     });
 
     expect(prismaMock.representative.findUniqueOrThrow).toHaveBeenCalledWith({
@@ -58,7 +58,7 @@ describe("leadService.createLead", () => {
       data: {
         name: "Fulano",
         phone: "11999999999",
-        skinId: "skin-1",
+        cardId: "card-1",
         representativeId: "rep-marcelo",
         status: LeadStatus.SEM_CONTATO,
         position: 3,
@@ -84,7 +84,7 @@ describe("leadService.createLead", () => {
       id: "lead-2",
       name: "Ciclana",
       phone: "11888888888",
-      skinId: "skin-1",
+      cardId: "card-1",
       representativeId: leonardo.id,
       status: LeadStatus.SEM_CONTATO,
       position: 0,
@@ -95,7 +95,7 @@ describe("leadService.createLead", () => {
     await leadService.createLead({
       name: "Ciclana",
       phone: "11888888888",
-      skinId: "skin-1",
+      cardId: "card-1",
     });
 
     expect(prismaMock.roundRobinState.update).toHaveBeenCalledWith({

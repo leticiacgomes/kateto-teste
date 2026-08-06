@@ -8,7 +8,7 @@ export type DropCard = {
   id: string;
   /** DJ name, shown as the card's main title. */
   name: string;
-  /** Skin name, shown as the card's alias line. */
+  /** Card name, shown as the card's alias line. */
   alias: string;
   price: number;
   artUrl?: string | null;

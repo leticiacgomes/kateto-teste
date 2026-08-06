@@ -1,9 +1,6 @@
 import type { AnchorHTMLAttributes } from "react";
-import {
-  buttonClasses,
-  type ButtonSize,
-  type ButtonVariant,
-} from "@/components/ui/forms/Button";
+import type { ButtonSize, ButtonVariant } from "@/components/ui/forms/Button";
+import { buttonClasses } from "@/components/ui/forms/Button";
 
 export type ButtonLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   variant?: ButtonVariant;

@@ -644,3 +644,26 @@ escolha preferida sobre o dual-write em Redis (Alternativa 1), porque não
 introduz uma segunda fonte de verdade para o índice do round robin — só
 controla a taxa de chegada no Postgres, que já é a fonte de verdade única
 hoje.
+
+## Rename Skin → Card, e kanban "card" → "LeadCard" (2026-08-06)
+
+**Decisão**: renomear a entidade `Skin` (model Prisma, repository, campos
+`skinId`/`skin`, textos de UI) para `Card`, a pedido do usuário — o produto
+vendido é chamado de "card" pelo negócio, não "skin".
+
+**Contexto**: o repositório já usava "card" com outro sentido antes desta
+mudança — `services/card.service.ts`, `actions/card.actions.ts` e o
+componente `KanbanCard` tratam do card do **lead** dentro do quadro kanban
+(mover/reordenar entre colunas), sem nenhuma relação com o produto. Renomear
+`Skin` para `Card` sem tocar nisso criaria duas coisas diferentes com o
+mesmo nome no projeto.
+
+**Sugestão do agente, aceita pelo usuário**: manter `Card` livre só para o
+produto (model Prisma, `card.repository.ts`, `cardId` em `Lead`) e
+desambiguar o que já existia do kanban, renomeando para `LeadCard`:
+`services/card.service.ts` → `services/leadCard.service.ts`
+(`cardService` → `leadCardService`), `actions/card.actions.ts` →
+`actions/leadCard.actions.ts` (a action exportada `moveLeadAction` já era
+suficientemente clara e não mudou de nome) e o componente
+`ui/surfaces/KanbanCard.tsx` → `ui/surfaces/LeadCard.tsx` (`KanbanCard` →
+`LeadCard`, `KanbanCardProps` → `LeadCardProps`).

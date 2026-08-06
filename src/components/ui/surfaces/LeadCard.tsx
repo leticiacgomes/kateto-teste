@@ -3,7 +3,7 @@ import { formatPrice } from "@/lib/format";
 import { Avatar } from "../display/Avatar";
 import { type LeadStatus, STATUS, StatusPill } from "../display/StatusPill";
 
-export type KanbanCardProps = {
+export type LeadCardProps = {
   name?: string;
   handle?: string;
   want?: string;
@@ -16,7 +16,7 @@ export type KanbanCardProps = {
 };
 
 /** A lead card for the backoffice kanban board. */
-export function KanbanCard(props: KanbanCardProps) {
+export function LeadCard(props: LeadCardProps) {
   const {
     name,
     handle,

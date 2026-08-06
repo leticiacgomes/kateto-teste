@@ -1,6 +1,6 @@
 # Dropbase
 
-Landing page + CRM simples para venda de figurinhas/skins de DJs de música
+Landing page + CRM simples para venda de figurinhas/cards de DJs de música
 eletrônica — teste técnico. Duas partes: vitrine pública com formulário de
 contato, e uma área logada com kanban de leads (4 colunas fixas) distribuídos
 automaticamente entre 5 vendedores em round robin.
@@ -32,26 +32,26 @@ src/
 
   actions/
     lead.actions.ts                # Server Action: criar lead + round robin
-    card.actions.ts                # Server Action: mover card entre colunas
+    leadCard.actions.ts            # Server Action: mover card do lead entre colunas
     auth.actions.ts                # Server Action: login
 
   components/
     public/                        # seções da landing
-    kanban/                        # colunas, card, drag context (dnd-kit)
+    kanban/                        # colunas, card do lead, drag context (dnd-kit)
     auth/                          # LoginForm
     ui/                            # design system (display/forms/surfaces)
 
   services/
     lead.service.ts                # orquestra criação de lead + round robin (transaction)
     round-robin.service.ts         # regra pura do round robin (sem I/O)
-    card.service.ts                # mover/reordenar card entre colunas
+    leadCard.service.ts            # mover/reordenar card do lead entre colunas
     auth.service.ts
 
   repositories/
     lead.repository.ts             # queries Prisma de Lead
     roundRobin.repository.ts       # ponteiro do round robin
     representative.repository.ts
-    skin.repository.ts
+    card.repository.ts
     user.repository.ts
 
   validators/
@@ -101,7 +101,7 @@ Comandos individuais, se precisar rodar passo a passo:
 ./dev.sh --up         # sobe db + app em background
 ./dev.sh --install    # pnpm install dentro do container app
 ./dev.sh --db:setup   # prisma migrate dev + generate
-./dev.sh --seed       # popula DJs/skins + cria o usuário admin
+./dev.sh --seed       # popula DJs/cards + cria o usuário admin
 ./dev.sh --dev        # sobe o Next.js em http://localhost:3000
 ./dev.sh --shell      # abre um shell dentro do container app
 ./dev.sh --down       # derruba os containers

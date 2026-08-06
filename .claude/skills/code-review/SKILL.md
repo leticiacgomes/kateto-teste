@@ -76,7 +76,7 @@ funcionamento real**, não por ordem de descoberta:
   prioridade mas fácil de corrigir).
 
 **Página pública e kanban**
-- Formulário com os campos definidos no projeto (nome, skin/figurinha
+- Formulário com os campos definidos no projeto (nome, card/figurinha
   desejada, telefone), validação zod, telefone validado como número
   plausível.
 - Kanban com as 4 colunas fixas (Sem Contato, Em Contato, Perdido,

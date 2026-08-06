@@ -28,7 +28,7 @@ function djEntry(name: string, file: string, rarity: string) {
     name,
     imageUrl: `/djs/${file}`,
     bio: null,
-    skins: [
+    cards: [
       {
         name: `Edição ${RARITY_LABEL[rarity]}`,
         price: RARITY_PRICE[rarity],
@@ -93,20 +93,20 @@ async function main() {
       },
     });
 
-    for (const skin of dj.skins) {
-      await prisma.skin.upsert({
-        where: { djId_name: { djId: createdDj.id, name: skin.name } },
+    for (const card of dj.cards) {
+      await prisma.card.upsert({
+        where: { djId_name: { djId: createdDj.id, name: card.name } },
         update: {
-          imageUrl: skin.imageUrl,
-          price: skin.price,
-          rarity: skin.rarity as Rarity,
+          imageUrl: card.imageUrl,
+          price: card.price,
+          rarity: card.rarity as Rarity,
         },
         create: {
           djId: createdDj.id,
-          name: skin.name,
-          imageUrl: skin.imageUrl,
-          price: skin.price,
-          rarity: skin.rarity as Rarity,
+          name: card.name,
+          imageUrl: card.imageUrl,
+          price: card.price,
+          rarity: card.rarity as Rarity,
         },
       });
     }

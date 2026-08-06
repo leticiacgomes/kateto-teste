@@ -2,13 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { leadRepository } from "@/repositories/lead.repository";
 import { representativeRepository } from "@/repositories/representative.repository";
 import { roundRobinRepository } from "@/repositories/roundRobin.repository";
-import { roundRobinService } from "@/services/round-robin.service";
+import { roundRobinService } from "@/services/roundRobin.service";
 import { type Lead, LeadStatus } from "../../generated/prisma/client";
 
 export type CreateLeadInput = {
   name: string;
   phone: string;
-  skinId: string;
+  cardId: string;
 };
 
 export const leadService = {
@@ -36,7 +36,7 @@ export const leadService = {
       return leadRepository.create(tx, {
         name: input.name,
         phone: input.phone,
-        skinId: input.skinId,
+        cardId: input.cardId,
         representativeId: representative.id,
         status: LeadStatus.SEM_CONTATO,
         position,

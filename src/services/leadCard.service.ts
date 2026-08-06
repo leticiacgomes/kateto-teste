@@ -8,7 +8,7 @@ export type MoveLeadInput = {
   index: number;
 };
 
-export const cardService = {
+export const leadCardService = {
   async moveLead(input: MoveLeadInput): Promise<void> {
     await prisma.$transaction(async (tx) => {
       const columnLeads = await leadRepository.listByStatusOrdered(

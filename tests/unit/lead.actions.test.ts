@@ -10,7 +10,7 @@ import { leadService } from "@/services/lead.service";
 const createLeadMock = vi.mocked(leadService.createLead);
 
 function buildFormData(
-  fields: Partial<Record<"name" | "phone" | "skinId", string>>,
+  fields: Partial<Record<"name" | "phone" | "cardId", string>>,
 ) {
   const formData = new FormData();
   for (const [key, value] of Object.entries(fields)) {
@@ -29,7 +29,7 @@ describe("createLeadAction", () => {
       id: "lead-1",
       name: "Fulano",
       phone: "11999999999",
-      skinId: "skin-1",
+      cardId: "card-1",
       representativeId: "rep-1",
       status: "SEM_CONTATO",
       position: 0,
@@ -41,7 +41,7 @@ describe("createLeadAction", () => {
     const formData = buildFormData({
       name: "Fulano",
       phone: "(11) 99999-9999",
-      skinId: "skin-1",
+      cardId: "card-1",
     });
 
     const result = await createLeadAction({}, formData);
@@ -49,20 +49,20 @@ describe("createLeadAction", () => {
     expect(createLeadMock).toHaveBeenCalledWith({
       name: "Fulano",
       phone: "11999999999",
-      skinId: "skin-1",
+      cardId: "card-1",
     });
     expect(result.data).toEqual({ success: true });
   });
 
   it("retorna validationErrors e não chama o service quando os campos são inválidos", async () => {
-    const formData = buildFormData({ name: "A", phone: "123", skinId: "" });
+    const formData = buildFormData({ name: "A", phone: "123", cardId: "" });
 
     const result = await createLeadAction({}, formData);
 
     expect(createLeadMock).not.toHaveBeenCalled();
     expect(result.validationErrors?.fieldErrors?.name).toBeTruthy();
     expect(result.validationErrors?.fieldErrors?.phone).toBeTruthy();
-    expect(result.validationErrors?.fieldErrors?.skinId).toBeTruthy();
+    expect(result.validationErrors?.fieldErrors?.cardId).toBeTruthy();
   });
 
   it("retorna erro genérico quando o service falha", async () => {
@@ -71,7 +71,7 @@ describe("createLeadAction", () => {
     const formData = buildFormData({
       name: "Fulano",
       phone: "11999999999",
-      skinId: "skin-1",
+      cardId: "card-1",
     });
 
     const result = await createLeadAction({}, formData);

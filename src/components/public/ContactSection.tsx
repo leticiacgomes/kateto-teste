@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/forms/Button";
 import { Input } from "@/components/ui/forms/Input";
 import { Select } from "@/components/ui/forms/Select";
 
-export type SkinOption = { value: string; label: string };
+export type CardOption = { value: string; label: string };
 
-export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
+export function ContactSection({ cardOptions }: { cardOptions: CardOption[] }) {
   const [state, formAction, pending] = useActionState(createLeadAction, {});
   const fieldErrors = state.validationErrors?.fieldErrors;
   const success = Boolean(state.data?.success);
@@ -74,11 +74,11 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
                 error={fieldErrors?.phone?.[0]}
               />
               <Select
-                name="skinId"
+                name="cardId"
                 label="Card de interesse"
-                options={skinOptions}
+                options={cardOptions}
                 required
-                error={fieldErrors?.skinId?.[0]}
+                error={fieldErrors?.cardId?.[0]}
               />
               {state.serverError && (
                 <p className="font-ui text-body-sm text-danger">

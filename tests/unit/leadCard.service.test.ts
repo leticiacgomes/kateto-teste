@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { LeadStatus, type Lead } from "../../generated/prisma/client";
-import { cardService } from "../../src/services/card.service.js";
+import { type Lead, LeadStatus } from "../../generated/prisma/client";
+import { leadCardService } from "../../src/services/leadCard.service.js";
 import { prismaMock } from "../prisma.mock.js";
 
 beforeEach(() => {
@@ -16,18 +16,25 @@ function lead(id: string, position: number): Lead {
     phone: "11999999999",
     status: LeadStatus.EM_CONTATO,
     position,
-    skinId: "skin-1",
+    cardId: "card-1",
     representativeId: "rep-1",
     createdAt: new Date(),
     updatedAt: new Date(),
   };
 }
 
-describe("cardService.moveLead", () => {
+describe("leadCardService.moveLead", () => {
   it("insere o lead no índice pedido e renumera a coluna de destino inteira em uma única query", async () => {
-    prismaMock.lead.findMany.mockResolvedValueOnce([lead("a", 0), lead("b", 1)]);
+    prismaMock.lead.findMany.mockResolvedValueOnce([
+      lead("a", 0),
+      lead("b", 1),
+    ]);
 
-    await cardService.moveLead({ leadId: "x", status: LeadStatus.EM_CONTATO, index: 1 });
+    await leadCardService.moveLead({
+      leadId: "x",
+      status: LeadStatus.EM_CONTATO,
+      index: 1,
+    });
 
     expect(prismaMock.lead.findMany).toHaveBeenCalledWith({
       where: { status: LeadStatus.EM_CONTATO, id: { not: "x" } },
@@ -43,7 +50,11 @@ describe("cardService.moveLead", () => {
   it("clampa índices fora do intervalo pro fim da coluna, ainda em uma única query", async () => {
     prismaMock.lead.findMany.mockResolvedValueOnce([lead("a", 0)]);
 
-    await cardService.moveLead({ leadId: "x", status: LeadStatus.PERDIDO, index: 99 });
+    await leadCardService.moveLead({
+      leadId: "x",
+      status: LeadStatus.PERDIDO,
+      index: 99,
+    });
 
     expect(prismaMock.lead.update).not.toHaveBeenCalled();
     expect(prismaMock.$executeRaw).toHaveBeenCalledOnce();
@@ -52,7 +63,11 @@ describe("cardService.moveLead", () => {
   it("coluna de destino vazia: lead movido vira a única posição", async () => {
     prismaMock.lead.findMany.mockResolvedValueOnce([]);
 
-    await cardService.moveLead({ leadId: "x", status: LeadStatus.FINALIZADO, index: 0 });
+    await leadCardService.moveLead({
+      leadId: "x",
+      status: LeadStatus.FINALIZADO,
+      index: 0,
+    });
 
     expect(prismaMock.lead.update).not.toHaveBeenCalled();
     expect(prismaMock.$executeRaw).toHaveBeenCalledOnce();

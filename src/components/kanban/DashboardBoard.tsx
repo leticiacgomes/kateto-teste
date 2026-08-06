@@ -1,7 +1,7 @@
 "use client";
 
 import { startTransition, useActionState, useState } from "react";
-import { moveLeadAction } from "@/actions/card.actions";
+import { moveLeadAction } from "@/actions/leadCard.actions";
 import { KanbanBoard } from "@/components/kanban/KanbanBoard";
 import { type DrawerLead, LeadDrawer } from "@/components/kanban/LeadDrawer";
 import { Sidebar } from "@/components/kanban/Sidebar";
