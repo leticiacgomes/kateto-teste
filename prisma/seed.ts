@@ -11,64 +11,46 @@ const prisma = new PrismaClient({ adapter });
 // Ordem fixa do round robin, definida em CLAUDE.md.
 const REPRESENTATIVES = ["Marcelo", "Rafael", "Renato", "Pedro", "Leonardo"];
 
+const RARITY_LABEL: Record<string, string> = {
+  LEGENDARY: "Lendária",
+  EPIC: "Épica",
+  RARE: "Rara",
+};
+
+const RARITY_PRICE: Record<string, string> = {
+  LEGENDARY: "89.90",
+  EPIC: "59.90",
+  RARE: "39.90",
+};
+
+function djEntry(name: string, file: string, rarity: string) {
+  return {
+    name,
+    imageUrl: `/djs/${file}`,
+    bio: null,
+    skins: [
+      {
+        name: `Edição ${RARITY_LABEL[rarity]}`,
+        price: RARITY_PRICE[rarity],
+        imageUrl: `/djs/${file}`,
+        rarity,
+      },
+    ],
+  };
+}
+
 const DJS = [
-  {
-    name: "DJ Nova",
-    imageUrl: "https://placehold.co/600x600?text=DJ+Nova",
-    bio: "Progressive house e sets de peso para grandes festivais.",
-    skins: [
-      {
-        name: "Nova Neon",
-        price: "39.90",
-        imageUrl: "https://placehold.co/400x400?text=Nova+Neon",
-        rarity: "RARE",
-      },
-      {
-        name: "Nova Eclipse",
-        price: "44.90",
-        imageUrl: "https://placehold.co/400x400?text=Nova+Eclipse",
-        rarity: "EPIC",
-      },
-    ],
-  },
-  {
-    name: "Voltz",
-    imageUrl: "https://placehold.co/600x600?text=Voltz",
-    bio: "Techno underground direto da pista.",
-    skins: [
-      {
-        name: "Voltz Circuito",
-        price: "34.90",
-        imageUrl: "https://placehold.co/400x400?text=Voltz+Circuito",
-        rarity: "COMMON",
-      },
-      {
-        name: "Voltz Blackout",
-        price: "34.90",
-        imageUrl: "https://placehold.co/400x400?text=Voltz+Blackout",
-        rarity: "RARE",
-      },
-    ],
-  },
-  {
-    name: "Prisma",
-    imageUrl: "https://placehold.co/600x600?text=Prisma",
-    bio: "Trance melódico com identidade visual marcante.",
-    skins: [
-      {
-        name: "Prisma Aurora",
-        price: "42.90",
-        imageUrl: "https://placehold.co/400x400?text=Prisma+Aurora",
-        rarity: "EPIC",
-      },
-      {
-        name: "Prisma Refração",
-        price: "42.90",
-        imageUrl: "https://placehold.co/400x400?text=Prisma+Refracao",
-        rarity: "LEGENDARY",
-      },
-    ],
-  },
+  djEntry("David Guetta", "guetta.jpeg", "LEGENDARY"),
+  djEntry("Swedish House Mafia", "shm.jpeg", "LEGENDARY"),
+  djEntry("Charlotte de Witte", "charlotte.jpeg", "EPIC"),
+  djEntry("Boris Brejcha", "boris.jpeg", "EPIC"),
+  djEntry("Vintage Culture", "vintage.jpeg", "EPIC"),
+  djEntry("ARTBAT", "artbat.jpeg", "EPIC"),
+  djEntry("Alok", "alok.jpeg", "EPIC"),
+  djEntry("John Summit", "summit.jpeg", "RARE"),
+  djEntry("CamelPhat", "camelphat.png", "RARE"),
+  djEntry("Argy", "argy.jpeg", "RARE"),
+  djEntry("ANNA", "anna.jpeg", "RARE"),
 ];
 
 async function main() {
