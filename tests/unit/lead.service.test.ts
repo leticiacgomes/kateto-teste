@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { prismaMock } from "../prisma.mock.js";
-import {
-  LeadStatus,
-  type Representative,
-} from "../../generated/prisma/client.js";
+import { LeadStatus, type Representative } from "../../generated/prisma/client";
 import { leadService } from "../../src/services/lead.service.js";
+import { prismaMock } from "../prisma.mock.js";
 
 // Este arquivo cobre a orquestração (sequência de chamadas, dados repassados
 // pro repository) com o Postgres mockado — ver src/lib/prisma.mock.ts. A
