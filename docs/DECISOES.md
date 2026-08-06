@@ -86,7 +86,7 @@ tutoriais Next.js + Prisma que o usuário possa encontrar.
 
 ## Pendências para a próxima etapa
 
-- [ ] `lib/prisma.ts` — singleton do client com o driver adapter acima.
+- [x] `lib/prisma.ts` — singleton do client com o driver adapter acima.
 - [ ] `services/lead.service.ts` — lógica de round robin (não modelada
       ainda, só o schema que a suporta).
 - [ ] Confirmar se a estrutura de pastas vai para `src/` (como descrito no
