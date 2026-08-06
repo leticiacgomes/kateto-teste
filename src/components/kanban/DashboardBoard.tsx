@@ -28,6 +28,7 @@ export function DashboardBoard({ leads }: { leads: DrawerLead[] }) {
         )}
         <KanbanBoard
           initialLeads={leads}
+          lastMoveResult={moveState}
           onOpen={setOpenId}
           onMove={(leadId, status, index) =>
             startTransition(() => dispatchMove({ leadId, status, index }))

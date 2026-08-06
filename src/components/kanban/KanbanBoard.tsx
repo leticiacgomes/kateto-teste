@@ -19,7 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/display/Badge";
 import { STATUS } from "@/components/ui/display/StatusPill";
 import { KanbanCard } from "@/components/ui/surfaces/KanbanCard";
@@ -140,13 +140,21 @@ export function KanbanBoard({
   initialLeads,
   onOpen,
   onMove,
+  lastMoveResult,
 }: {
   initialLeads: KanbanLead[];
   onOpen: (leadId: string) => void;
   onMove: (leadId: string, status: LeadStatusKey, index: number) => void;
+  lastMoveResult?: unknown;
 }) {
   const [leads, setLeads] = useState(initialLeads);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    void lastMoveResult;
+    setLeads(initialLeads);
+  }, [initialLeads, lastMoveResult]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
   );
