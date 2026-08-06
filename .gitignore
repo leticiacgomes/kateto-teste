@@ -50,3 +50,5 @@ next-env.d.ts
 /.claude/skills/*
 !/.claude/skills/django-to-nextjs
 !/.claude/skills/frontend-design
+
+/tmp
