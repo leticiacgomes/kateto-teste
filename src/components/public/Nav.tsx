@@ -12,6 +12,9 @@ export function Nav() {
         </div>
       </div>
       <div className="flex items-center gap-3.5">
+        <ButtonLink href="/dashboard" variant="secondary" size="sm">
+          Dashboard
+        </ButtonLink>
         <ButtonLink href="#contact" size="sm">
           Monte sua coleção
         </ButtonLink>

@@ -20,7 +20,6 @@ const STAGE_ORDER: LeadStatusKey[] = [
 
 export type DrawerLead = KanbanLead & {
   rarity: "common" | "rare" | "epic" | "legendary";
-  representativeName: string;
   createdAtLabel: string;
 };
 

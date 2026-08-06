@@ -37,6 +37,7 @@ export type KanbanLead = {
   djName: string;
   cardPrice: number;
   updatedLabel: string;
+  representativeName: string;
 };
 
 const COLUMN_ORDER: LeadStatusKey[] = [
@@ -80,6 +81,7 @@ function SortableCard({
         value={lead.cardPrice}
         status={lead.status}
         updated={lead.updatedLabel}
+        representative={lead.representativeName}
         onClick={() => onOpen(lead.id)}
       />
     </div>
@@ -250,6 +252,7 @@ export function KanbanBoard({
             value={activeLead.cardPrice}
             status={activeLead.status}
             updated={activeLead.updatedLabel}
+            representative={activeLead.representativeName}
           />
         ) : null}
       </DragOverlay>

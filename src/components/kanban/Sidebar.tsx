@@ -26,12 +26,15 @@ export function Sidebar({
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="px-2.5 pt-1 pb-5 font-display text-h4 font-bold tracking-heading text-fg-strong">
+        <a
+          href="/"
+          className="block rounded-sm px-2.5 pt-1 pb-5 font-display text-h4 font-bold tracking-heading text-fg-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        >
           dropbase<span className="text-brand">.</span>{" "}
           <span className="align-middle font-mono text-micro tracking-label text-fg-faint">
             OPS
           </span>
-        </div>
+        </a>
         <nav className="flex flex-col gap-0.5">
           <span
             aria-current="page"
