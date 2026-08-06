@@ -18,22 +18,22 @@ Contexto: prazo de entrega é hoje (06/08), <2 dias de trabalho. Itens ranqueado
 
 ## Achados, por prioridade
 
-### 1. [ALTO — ~30min, maior ROI] README ainda é boilerplate do `create-next-app`
-Zero instrução de setup, stack ou estrutura de pastas. A Parte 1.1 do teste pede README com isso explicitamente, e também entra em "Cuidado geral" (facilidade de rodar).
+### 1. [ALTO — ~30min | doc] README ainda é boilerplate do `create-next-app`
+Zero instrução de setup, stack ou estrutura de pastas. Maior ROI: qualquer pessoa (incluindo o avaliador) que tentar rodar o projeto emperra no primeiro passo.
 
 - [ ] Escrever README.md: stack, estrutura de pastas, como rodar (env, docker, migrate, seed, dev)
 
-### 2. [MÉDIO] Não há `docker compose up` que suba a stack sozinha
+### 2. [MÉDIO | doc] Não há `docker compose up` que suba a stack sozinha
 `.devcontainer/docker-compose.yml` existe, mas o serviço `app` só roda `sleep infinity` — é tooling do devcontainer, não algo rodável fora do VS Code.
 
 - [ ] Documentar no README: subir só o `db` desse compose (ou criar um compose novo) + `pnpm install` + `prisma migrate deploy` + `db:seed` + `pnpm dev`
 
-### 3. [MÉDIO] `KanbanBoard` não resincroniza com o servidor após o mount
+### 3. [MÉDIO | bug] `KanbanBoard` não resincroniza com o servidor após o mount
 `useState(initialLeads)` só é lido na primeira renderização. Quando `moveLeadAction` falha (ex: sessão expirada no meio do drag), o card fica visualmente na coluna nova mesmo com o `UPDATE` rejeitado no banco — `moveState.serverError` aparece como banner mas nada reverte o estado local. Mesma causa faz uma segunda aba não ver moves feitos em outra sem reload completo.
 
 - [ ] Sincronizar `KanbanBoard` com o prop `leads` (via `useEffect` no prop, ou reverter estado local quando `moveState.serverError` aparecer)
 
-### 4. [BAIXO] Deriva de doc no `CLAUDE.md`
+### 4. [BAIXO | code smell] Deriva de doc no `CLAUDE.md`
 - [ ] Trocar `@hello-pangea/dnd` por `@dnd-kit` na seção Stack (já trocado no código, só falta o doc)
 - [ ] Corrigir árvore de pastas: página pública é `src/app/page.tsx`, não `(public)/page.tsx`; falta mencionar `src/app/login/page.tsx`
 
@@ -57,8 +57,9 @@ Zero instrução de setup, stack ou estrutura de pastas. A Parte 1.1 do teste pe
   quão rigoroso ser.
 - **Elogios específicos com referência de código** (`arquivo#função`), não
   genéricos ("bom trabalho!").
-- **Achados com tag de prioridade e esforço estimado**, não uma lista plana.
-  `[ALTO/MÉDIO/BAIXO — esforço]`.
+- **Achados com tag de prioridade, esforço estimado e dimensão**, não uma
+  lista plana. `[ALTO/MÉDIO/BAIXO — esforço | bug/code smell/escala/
+  concorrência/segurança/teste/doc]`.
 - **Causa raiz em 1-3 frases**, não um parágrafo. Se precisar de mais que
   isso, provavelmente é achado grande demais — quebrar em dois.
 - **Checklist acionável** (`- [ ]`) por achado, verbo no infinitivo,

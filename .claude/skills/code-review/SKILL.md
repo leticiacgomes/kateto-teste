@@ -1,128 +1,94 @@
 ---
 name: code-review
-description: Revisão de código no papel de staff engineer, focada em qualidade de código e corretude funcional do Dropbase — captura as mudanças staged/unstaged/untracked do git (ou o projeto inteiro se a árvore estiver limpa) e avalia contra as regras de negócio e convenções do CLAUDE.md/AGENTS.md. Não usa nem expõe nenhum critério de avaliação do processo seletivo. Use sempre que o usuário pedir "/code-review", "revisão antes de commitar", "review completo", "revise como staff engineer", ou antes de um commit importante.
+description: Revisão de código abrangente no papel de engenheiro de software sênior/staff — aponta bugs, code smells, problemas de escala/performance, concorrência, segurança e design em qualquer nível do código do Dropbase, usando CLAUDE.md/AGENTS.md/docs/DECISOES.md como contexto para ponderar prioridades e trade-offs (não como checklist fechado). Não usa nem expõe nenhum critério de avaliação do processo seletivo. Use sempre que o usuário pedir "/code-review", "revisão antes de commitar", "review completo", "revise como staff engineer", ou antes de um commit importante.
 ---
 
 # Code Review (Dropbase)
 
-Esta skill existe para substituir uma revisão manual antes de cada commit
-importante. Ela não edita código — só relata. Correções são um passo
-separado, feito só se pedido depois do review.
+Substitui uma revisão manual antes de commit importante. Não edita código —
+só relata; correção é passo separado, só se pedido depois.
 
-Escopo estrito: **qualidade de código e corretude funcional**, medida
-contra as regras de negócio e convenções que o próprio repositório já
-documenta (`CLAUDE.md`, `AGENTS.md`, `docs/DECISOES.md`). Esta skill nunca
-referencia, cita ou reproduz nenhum critério de avaliação, peso de nota ou
-texto do processo seletivo — isso não é conteúdo do produto e não deve
-influenciar a revisão nem aparecer na saída.
+Revisar como um **engenheiro sênior/staff** revisaria qualquer PR: olhar
+crítico e amplo, não uma lista fixa de itens do projeto. `CLAUDE.md`,
+`AGENTS.md` e `docs/DECISOES.md` entram como **contexto pra ponderar
+trade-offs** (o que já foi decidido conscientemente, restrições reais como
+prazo curto e primeira vez com Next.js, regras de negócio a respeitar) —
+não como escopo que limita o que vale revisar. Qualquer bug, code smell,
+risco de escala/concorrência/segurança ou decisão de design questionável é
+achado, documentado no projeto ou não. Nunca referenciar, citar ou
+reproduzir critério de avaliação do processo seletivo.
 
-## Passo 1 — Definir o escopo
+## Passo 1 — Escopo
 
-Rodar em paralelo:
+Rodar em paralelo: `git status --porcelain=v1`, `git diff`, `git diff --cached`.
 
-```
-git status --porcelain=v1
-git diff                 # unstaged, arquivos rastreados
-git diff --cached        # staged
-```
+- Se houver staged/unstaged/untracked relevante (ignorar lockfiles,
+  `generated/prisma`, build): escopo é essas mudanças — ler diff completo
+  de cada arquivo modificado e conteúdo integral dos novos.
+- Se a árvore estiver limpa: escopo é o projeto inteiro.
 
-- **Se houver qualquer coisa staged, unstaged ou untracked relevante**
-  (ignorar lockfiles, `generated/prisma`, artefatos de build): o escopo é
-  essas mudanças. Ler o diff completo de cada arquivo modificado
-  (`git diff HEAD -- <arquivo>`) e o conteúdo integral de arquivos novos
-  (untracked) via `Read`.
-- **Se a árvore estiver limpa**: o escopo é o projeto inteiro.
+Ler antes de revisar: `CLAUDE.md`, `AGENTS.md` (convenções, o que o agente
+não decide sozinho), `docs/DECISOES.md` (não reabrir debate do que já foi
+decidido), `README.md` (o que já existe vs. falta).
 
-Em ambos os casos, ler também antes de revisar:
+## Passo 2 — Lentes da revisão
 
-- `CLAUDE.md` e `AGENTS.md` — convenções e o que o agente pode/não pode
-  decidir sozinho.
-- `docs/DECISOES.md` — trade-offs já discutidos e conscientemente aceitos;
-  não reabrir debate sobre o que já foi decidido aqui.
-- `README.md` — pra saber se setup/instruções já existem ou ainda faltam.
+Não é checklist pra marcar item a item — são as lentes que um staff
+engineer aplica a qualquer diff. Reportar só achado real; priorizar por
+**risco técnico e impacto real**, não por ordem de descoberta.
 
-## Passo 2 — Checklist de qualidade e corretude funcional
+- **Corretude/bugs**: casos de borda (vazio, nulo, zero/negativo), estado
+  inconsistente (UI otimista sem rollback, cache não invalidado), erro
+  engolido silenciosamente.
+- **Code smell/manutenibilidade**: duplicação, abstração sem necessidade
+  (regra do `CLAUDE.md`), nome que esconde intenção, inconsistência com
+  padrão já estabelecido no projeto.
+- **Escala/performance**: N+1 de Prisma — nenhum `await` de query dentro de
+  `for`/`.map`/`.forEach` sobre lista do banco; usar batch/raw em lote na
+  mesma transaction (ver `services/card.service.ts` +
+  `repositories/lead.repository.ts#reorderColumn`). Também: operação sem
+  limite de volume, trabalho bloqueante em caminho quente.
+- **Concorrência/integridade**: race condition em leitura-modificação-
+  escrita sem lock/transaction — inclui o round robin (ordem fixa Marcelo →
+  Rafael → Renato → Pedro → Leonardo → repete, ponteiro em
+  `RoundRobinState`, transaction evitando dois leads roubarem o mesmo
+  vendedor).
+- **Segurança**: auth/autorização em todo caminho que muta dado protegido
+  (Server Actions inclusas, não só página — checar `node_modules/next/
+  dist/docs` se houver dúvida por causa do `AGENTS.md`); validação em toda
+  fronteira, nunca removida "pra simplificar"; dado sensível vazando em
+  log/erro exposto.
+- **Testes**: lógica crítica testável sem UI/rota, cobertura além do
+  caminho feliz, teste que não falharia se a lógica quebrasse.
+- **Documentação/deriva**: README cobre stack/pastas/como rodar de fato;
+  `docs/DECISOES.md` registra alternativas e porquê; `CLAUDE.md`/`AGENTS.md`
+  batendo com o código atual; commits legíveis.
 
-Verificar especificamente (além de qualquer outra coisa que salte aos olhos
-no diff/projeto), priorizado por **risco técnico e impacto no
-funcionamento real**, não por ordem de descoberta:
+## Passo 3 — Postura
 
-**Regra de negócio (round robin)**
-- Ordem fixa: Marcelo → Rafael → Renato → Pedro → Leonardo → repete.
-- Ponteiro persistido em banco (`RoundRobinState`), não em memória —
-  sobrevive a reinício/redeploy.
-- Atribuição dentro de uma transaction/lock que evita dois leads roubarem o
-  mesmo vendedor sob concorrência.
-- Lógica isolada em `services/lead.service.ts`, testável sem subir UI/rota.
-- Card do lead mostra qual vendedor ficou responsável.
+- Julgar com o contexto real (poucas horas, primeira vez com Next.js), sem
+  exigir arquitetura de produto maduro.
+- Nunca sugerir remover validação "pra simplificar"; nunca decidir a regra
+  de round robin sozinho — apontar problema, não alterar sem confirmar
+  (ambos regra do `CLAUDE.md`).
+- Separar **bug real** de **trade-off já justificado** em
+  `docs/DECISOES.md` — a segunda vai em "não é problema".
+- Não editar nada durante o review; só relatar.
 
-**Qualidade de código**
-- Nenhum `await` de query Prisma dentro de `for`/`.map`/`.forEach` sobre
-  lista vinda do banco (regra do `CLAUDE.md` — usar batch/`updateMany`/raw
-  em lote). Ver `services/card.service.ts` como referência do padrão
-  correto.
-- Nomes em inglês, sem `any` evitável, sem abstração introduzida sem
-  necessidade real.
-- Mutações em Server Actions (`actions/`) chamando `services/` →
-  `repositories/`, não lógica de negócio direto em componente/rota.
+## Passo 4 — Saída
 
-**Documentação**
-- `README.md` cobre stack, estrutura de pastas e como rodar de fato (não é
-  boilerplate do scaffold).
-- `docs/DECISOES.md` registra decisões estruturais reais, com alternativas
-  consideradas e o porquê — não só uma lista de "fizemos X".
-- `CLAUDE.md`/`AGENTS.md` batem com o código atual (deriva de doc — lib
-  trocada, pasta renomeada, etc. — conta como achado, geralmente baixa
-  prioridade mas fácil de corrigir).
+Seguir `references/example-output.md`:
 
-**Página pública e kanban**
-- Formulário com os campos definidos no projeto (nome, card/figurinha
-  desejada, telefone), validação zod, telefone validado como número
-  plausível.
-- Kanban com as 4 colunas fixas (Sem Contato, Em Contato, Perdido,
-  Finalizado), cards móveis entre elas.
-
-**Fundamentos de produto**
-- Autenticação real na área logada, verificada não só na página mas também
-  nas Server Actions que mutam dado protegido (checar `node_modules/next/
-  dist/docs` se houver dúvida sobre o padrão desta versão do Next, por
-  causa do aviso do `AGENTS.md`).
-- Validação de input nos dois formulários (contato público, login).
-- Erros tratados de forma visível ao usuário, não só logados no servidor.
-
-**Cuidado geral**
-- Setup roda de fato com poucos comandos ou `docker compose up` — testar o
-  caminho documentado, não só assumir que funciona.
-- Histórico de commits legível, pequenos e descritivos.
-
-## Passo 3 — Papel: staff engineer sob prazo curto
-
-- Contexto real: quem está entregando tem poucas horas de trabalho efetivo
-  e é a primeira vez com Next.js — julgar com esse contexto, não exigir
-  arquitetura de produto maduro.
-- Nunca sugerir remover validação "pra simplificar" (regra do `CLAUDE.md`).
-- Nunca decidir a regra de round robin sozinho — se achar um problema nela,
-  apontar, mas não alterar sem confirmar antes (regra do `CLAUDE.md`).
-- Separar claramente **bug real** de **trade-off já justificado** em
-  `docs/DECISOES.md` — a segunda categoria vai na seção "não é problema",
-  não nos achados.
-- Não editar nada durante o review em si; só relatar. Se o usuário pedir
-  pra corrigir algo depois, isso é um passo separado.
-
-## Passo 4 — Formato de saída
-
-Seguir a estrutura de `references/example-output.md` (ver ali o exemplo
-completo e o porquê de cada parte):
-
-1. Uma frase de contexto (estado geral do repositório).
-2. `## O que está muito bem feito (não mexer)` — elogios específicos,
-   referenciando arquivo/função.
-3. `## Achados, por prioridade` — cada item numerado, com tag
-   `[ALTO/MÉDIO/BAIXO — esforço estimado]`, causa raiz em 1-3 frases, e um
+1. Uma frase de contexto (estado geral do repo).
+2. `## O que está muito bem feito (não mexer)` — elogios específicos, com
+   arquivo/função.
+3. `## Achados, por prioridade` — numerado, tag
+   `[ALTO/MÉDIO/BAIXO — esforço | dimensão]` (bug, code smell, escala,
+   concorrência, segurança, teste, doc), causa raiz em 1-3 frases,
    checklist `- [ ]` acionável.
 4. `## Não é problema — trade-off já documentado, não mexer`.
 5. `## Ordem sugerida se for resolvendo aos poucos`.
 
-Salvar o resultado em `tmp/code-review-<AAAA-MM-DD-HHmm>.md` (pasta já
-gitignorada na raiz do projeto — não em `/tmp` do sistema) e apresentar um
-resumo direto na conversa. Isso não é um artefato pra versionar no repo.
+Salvar em `tmp/code-review-<AAAA-MM-DD-HHmm>.md` (gitignorada, não `/tmp`
+do sistema) e apresentar resumo direto na conversa. Não é artefato pra
+versionar.
