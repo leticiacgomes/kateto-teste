@@ -19,7 +19,7 @@ export function Nav() {
       </div>
       <div className="flex items-center gap-3.5">
         <Button size="sm" onClick={scrollToContact}>
-          Get early access
+          Monte sua coleção
         </Button>
       </div>
     </header>

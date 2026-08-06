@@ -28,14 +28,14 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
       <div className="mx-auto grid max-w-[1000px] grid-cols-2 items-center gap-16">
         <div>
           <div className="mb-3 font-mono text-[12px] uppercase tracking-label text-magenta-400">
-            Get on the list
+            ESCOLHA O SEU PREFERIDO
           </div>
           <h2 className="mb-4 font-display text-[40px] leading-[1.05] font-bold tracking-[-0.025em] text-fg-strong">
-            Tell us what you&apos;re hunting for.
+            Qual card você procura?
           </h2>
           <p className="font-ui text-[16px] leading-[1.6] text-fg-muted">
-            Drops move fast and most never hit the public catalog. Leave your
-            details and a curator reaches out when something matches.
+            Preencha seus dados e informe qual raridade você deseja adquirir.
+            Nossa equipe entratá em contato para dar continuidade :)
           </p>
         </div>
         <div className="rounded-[14px] border border-line-subtle bg-surface-1 p-7 shadow-lg">
@@ -82,7 +82,7 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
               />
               <Select
                 name="skinId"
-                label="Skin de interesse"
+                label="Card de interesse"
                 options={skinOptions}
                 required
                 error={fieldErrors?.skinId?.[0]}
@@ -93,7 +93,7 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
                 </p>
               )}
               <Button type="submit" size="lg" fullWidth disabled={pending}>
-                {pending ? "Enviando…" : "Solicitar acesso"}
+                {pending ? "Enviando…" : "SOLICITAR COMPRA"}
               </Button>
             </form>
           )}

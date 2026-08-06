@@ -30,10 +30,10 @@ export function DropsGrid({ cards }: { cards: DropCard[] }) {
       <div className="mb-7 flex items-end justify-between">
         <div>
           <div className="mb-2 font-mono text-[12px] uppercase tracking-label text-magenta-400">
-            This week&apos;s crate
+            Destaques da semana
           </div>
           <h2 className="font-display text-[34px] font-bold tracking-[-0.02em] text-fg-strong">
-            Featured drops
+            CARDS
           </h2>
         </div>
         <div className="w-[200px]">
