@@ -13,7 +13,9 @@ export default auth((req) => {
   const isProtectedRoute = pathname.startsWith("/dashboard");
   const isLoginRoute = pathname === "/login";
 
-  if (isProtectedRoute && !isLoggedIn) {
+  const isServerAction = req.headers.has("next-action");
+
+  if (isProtectedRoute && !isLoggedIn && !isServerAction) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 

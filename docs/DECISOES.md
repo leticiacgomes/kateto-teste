@@ -387,3 +387,111 @@ enquanto.
 **Pendência**: `AUTH_SECRET` no `.env` local foi gerado com
 `openssl rand -base64 32` só pra dev; **precisa ser regenerado** antes de
 qualquer deploy real (o valor de dev não deve ir pra produção).
+
+## Auth em Server Actions: do check isolado no `proxy.ts` a `next-safe-action` (2026-08-06)
+
+**Contexto**: registro, a pedido do usuário, da sequência de perguntas que
+levou a essa decisão — começou como revisão de commit, não como pedido de
+mudança de arquitetura.
+
+1. Usuário pediu revisão do commit `b885bd8` ("feat: add next auth"),
+   apontando que `proxy.ts` era a única checagem de auth do projeto e
+   perguntando se isso contrariava a doc do Next.js. Confirmado: doc local
+   (`node_modules/next/dist/docs/01-app/02-guides/data-security.md`) diz
+   explicitamente *"A page-level authentication check does not extend to the
+   Server Actions defined within it. Always re-verify inside the action"* e
+   que proxy *"should not be used as a full session management or
+   authorization solution"*. `card.actions.ts#moveLeadAction` de fato não
+   reverificava sessão nenhuma — bug real, não hipotético.
+2. Usuário pediu a checagem nas Server Actions → `auth()` adicionado inline
+   em `moveLeadAction`.
+3. Usuário perguntou se a página do dashboard também precisava de checagem
+   própria ("isso me cheira mal"). Agente propôs replicar o padrão na page;
+   usuário recusou por redundância com o proxy nesse escopo (uma rota
+   protegida só) — sinalizado como over-engineering pro tamanho do projeto.
+4. **Bug real encontrado pelo usuário** ao testar manualmente: deletou o
+   cookie de sessão, tentou mover um card no kanban, e recebeu `Uncaught
+   Error: An unexpected response was received from the server` em vez de um
+   redirect. Causa raiz: `proxy.ts` intercepta o POST que invoca a Server
+   Action (mesma rota `/dashboard`) e devolve um `NextResponse.redirect`
+   cru, que quebra o protocolo de resposta que o client runtime de Server
+   Actions espera — a checagem da action (item 2) nunca chegava a rodar
+   porque o proxy barrava a requisição antes.
+5. Fix em duas partes: (a) `proxy.ts` passou a identificar invocações de
+   Server Action pelo header `next-action` (usado internamente pelo Next —
+   confirmado em
+   `node_modules/next/dist/server/app-render/action-handler.js`) e não
+   redirecionar essas requisições; (b) a checagem dentro da action virou a
+   responsável real por barrar acesso sem sessão, devolvendo um resultado
+   tipado (`{ ok: false, message }`) que o client já sabia renderizar.
+6. Usuário notou que a lógica de auth passou a viver em dois lugares
+   (`proxy.ts` e cada action) e pediu pra centralizar, pensando em reuso.
+   Criado `src/middlewares/auth.middleware.ts` (`authMiddleware()`), usando
+   `redirect()` de `next/navigation` em vez de `NextResponse.redirect` —
+   funciona tanto em Server Components quanto dentro de Server Actions,
+   porque o Next trata esse caso de forma especial (navegação client-side
+   via `NEXT_REDIRECT`, não um redirect HTTP cru como o do proxy).
+7. Usuário apontou que ainda precisaria chamar `authMiddleware()`
+   manualmente em toda action protegida. Criado `withAuth()`, higher-order
+   function que embrulha a action — mesmo padrão do decorator
+   `@login_required` do Django (explicado ao usuário nesses termos, já que
+   é sua referência prévia).
+8. Usuário perguntou se existe forma mais legível de compor middleware +
+   validação em Server Actions, já que aninhar `withAuth(withValidation(schema,
+   fn))` não escala conforme mais actions/validações forem adicionadas.
+
+**Decisão**: adotar `next-safe-action` pra compor middleware (auth) e
+validação de input (zod, já no stack) de forma declarativa (`.use()` /
+`.inputSchema()` / `.action()`), substituindo o padrão de HOFs aninhadas
+(`withAuth`, e um eventual `withValidation`) por uma API única e mais
+legível.
+
+**Status: implementado.**
+
+- `pnpm add next-safe-action` (`8.6.0`).
+- `src/lib/safe-action.ts` — `actionClient` base, com `handleServerError`
+  central: erros esperados (`ActionError`, ex: sessão ausente) devolvem a
+  própria mensagem; qualquer outro erro vira uma mensagem genérica em
+  português (equivalente ao `except Exception` + resposta 500 genérica que
+  se faria numa `APIView` do DRF, pra não vazar detalhe interno).
+- `src/middlewares/auth.middleware.ts` — `withAuth`/`authMiddleware`
+  (baseados em `redirect()`) removidos; substituídos por
+  `authActionClient = actionClient.use(...)`, que checa `auth()` e lança
+  `ActionError` se não houver sessão. **Escolha deliberada**: não usar
+  `redirect()` aqui — a própria doc da lib
+  (`/docs/troubleshooting`, seção "redirect() doesn't work inside actions")
+  avisa que chamar `redirect()` dentro de uma action gerenciada pela lib é
+  um problema conhecido. Lançar erro e deixar o `serverError` tipado
+  chegar ao client (padrão que a lib já foi desenhada pra isso) evita essa
+  armadilha.
+- `src/actions/card.actions.ts` — `moveLeadAction` reescrita como
+  `authActionClient.inputSchema(moveLeadSchema).action(...)`; o
+  `VALID_STATUSES`/try-catch manual de antes (validação de status +
+  mensagem genérica de erro) saiu do código — zod cobre a validação e
+  `handleServerError` cobre o catch-all, ambos centralizados.
+- `src/components/kanban/DashboardBoard.tsx` — chamada adaptada pra `input`
+  único (`moveLeadAction({ leadId, status, index })`, formato que a lib
+  exige, em vez de argumentos posicionais) e leitura do resultado via
+  `result.serverError` / `result.validationErrors` em vez do
+  `MoveLeadActionResult` próprio de antes. Continua em cima de
+  `useActionState` nativo do React — não migrado pro `useAction`/
+  `useStateAction` da lib, pra não alterar o fluxo de drag-and-drop
+  (`startTransition`) que já funciona.
+
+**Escopo — só `card.actions.ts` migrado, não `lead.actions.ts`/
+`auth.actions.ts`**: o problema relatado pelo usuário (compor auth +
+validação de forma legível) só existe em `moveLeadAction`, a única action
+que precisa das duas coisas juntas. `createLeadAction` (form público da
+landing) já usa zod isoladamente, sem auth, e depende do formato
+`(prevState, formData)` do `useActionState` nativo pra funcionar sem JS
+(progressive enhancement) — migrar pra `next-safe-action` exigiria trocar
+esse form pro hook próprio da lib (`useStateAction`), que **não** suporta
+esse caso sem JS (aviso explícito na doc da lib). `auth.actions.ts`
+(login/logout) não tem validação de input própria além do que o NextAuth já
+faz. Migrar os três só por consistência seria mudança sem necessidade real
+— journal atualizado aqui em vez de fazer isso "de graça".
+
+**Testado**: `tests/unit/card.service.test.ts` (não tocado — a mudança foi
+na camada de action, não de service) continua passando, `3 passed`.
+`tsc --noEmit` sem erros novos além dos pré-existentes por dependências não
+instaladas neste ambiente sandbox (`next-auth`, `bcryptjs`).

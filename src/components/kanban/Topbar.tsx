@@ -1,6 +1,11 @@
+"use client";
+
+import { useActionState } from "react";
 import { logoutAction } from "@/actions/auth.actions";
 
 export function Topbar({ totalLeads }: { totalLeads: number }) {
+  const [, formAction, pending] = useActionState(logoutAction, {});
+
   return (
     <header className="flex items-center justify-between border-b border-line-subtle bg-surface-app px-6 py-3.5">
       <div>
@@ -11,12 +16,13 @@ export function Topbar({ totalLeads }: { totalLeads: number }) {
           Pipeline · {totalLeads} {totalLeads === 1 ? "lead" : "leads"}
         </div>
       </div>
-      <form action={logoutAction}>
+      <form action={formAction}>
         <button
           type="submit"
+          disabled={pending}
           className="cursor-pointer rounded-sm border border-line-default bg-transparent px-3.5 py-2 font-ui text-body-sm text-fg-muted transition-colors duration-[140ms] ease-standard hover:border-line-strong hover:text-fg-strong"
         >
-          Sair
+          {pending ? "Saindo…" : "Sair"}
         </button>
       </form>
     </header>

@@ -1,31 +1,23 @@
 "use server";
 
-import { AuthError } from "next-auth";
-import { signIn, signOut } from "@/auth";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import { signOut } from "@/auth";
+import { actionClient } from "@/lib/safe-action";
+import { authActionClient } from "@/middlewares/auth.middleware";
+import { authService } from "@/services/auth.service";
 
-export type LoginActionState =
-  | { status: "idle" }
-  | { status: "error"; message: string };
+const loginSchema = zfd.formData({
+  email: zfd.text(z.string().trim().min(1, "Informe seu e-mail.")),
+  password: zfd.text(z.string().min(1, "Informe sua senha.")),
+});
 
-export async function loginAction(
-  _prevState: LoginActionState,
-  formData: FormData,
-): Promise<LoginActionState> {
-  try {
-    await signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      redirectTo: "/dashboard",
-    });
-    return { status: "idle" };
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return { status: "error", message: "E-mail ou senha inválidos." };
-    }
-    throw error;
-  }
-}
+export const loginAction = actionClient
+  .inputSchema(loginSchema)
+  .stateAction(async ({ parsedInput }) => {
+    await authService.login(parsedInput.email, parsedInput.password);
+  });
 
-export async function logoutAction() {
+export const logoutAction = authActionClient.stateAction(async () => {
   await signOut({ redirectTo: "/login" });
-}
+});

@@ -1,24 +1,17 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  type CreateLeadActionState,
-  createLeadAction,
-} from "@/actions/lead.actions";
+import { createLeadAction } from "@/actions/lead.actions";
 import { Button } from "@/components/ui/forms/Button";
 import { Input } from "@/components/ui/forms/Input";
 import { Select } from "@/components/ui/forms/Select";
 
-const initialState: CreateLeadActionState = { status: "idle" };
-
 export type SkinOption = { value: string; label: string };
 
 export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
-  const [state, formAction, pending] = useActionState(
-    createLeadAction,
-    initialState,
-  );
-  const fieldErrors = state.status === "error" ? state.fieldErrors : undefined;
+  const [state, formAction, pending] = useActionState(createLeadAction, {});
+  const fieldErrors = state.validationErrors?.fieldErrors;
+  const success = Boolean(state.data?.success);
 
   return (
     <section
@@ -39,7 +32,7 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
           </p>
         </div>
         <div className="rounded-[14px] border border-line-subtle bg-surface-1 p-7 shadow-lg">
-          {state.status === "success" ? (
+          {success ? (
             <div className="px-3 py-10 text-center">
               <div className="mx-auto mb-[18px] flex h-[52px] w-[52px] items-center justify-center rounded-full border border-lime-500 bg-lime-500/12 shadow-glow-lime">
                 <svg
@@ -87,9 +80,9 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
                 required
                 error={fieldErrors?.skinId?.[0]}
               />
-              {state.status === "error" && (
+              {state.serverError && (
                 <p className="font-ui text-body-sm text-danger">
-                  {state.message}
+                  {state.serverError}
                 </p>
               )}
               <Button type="submit" size="lg" fullWidth disabled={pending}>

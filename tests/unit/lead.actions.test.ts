@@ -44,28 +44,25 @@ describe("createLeadAction", () => {
       skinId: "skin-1",
     });
 
-    const result = await createLeadAction({ status: "idle" }, formData);
+    const result = await createLeadAction({}, formData);
 
     expect(createLeadMock).toHaveBeenCalledWith({
       name: "Fulano",
       phone: "11999999999",
       skinId: "skin-1",
     });
-    expect(result).toEqual({ status: "success" });
+    expect(result.data).toEqual({ success: true });
   });
 
-  it("retorna fieldErrors e não chama o service quando os campos são inválidos", async () => {
+  it("retorna validationErrors e não chama o service quando os campos são inválidos", async () => {
     const formData = buildFormData({ name: "A", phone: "123", skinId: "" });
 
-    const result = await createLeadAction({ status: "idle" }, formData);
+    const result = await createLeadAction({}, formData);
 
     expect(createLeadMock).not.toHaveBeenCalled();
-    expect(result.status).toBe("error");
-    if (result.status === "error") {
-      expect(result.fieldErrors?.name).toBeTruthy();
-      expect(result.fieldErrors?.phone).toBeTruthy();
-      expect(result.fieldErrors?.skinId).toBeTruthy();
-    }
+    expect(result.validationErrors?.fieldErrors?.name).toBeTruthy();
+    expect(result.validationErrors?.fieldErrors?.phone).toBeTruthy();
+    expect(result.validationErrors?.fieldErrors?.skinId).toBeTruthy();
   });
 
   it("retorna erro genérico quando o service falha", async () => {
@@ -77,11 +74,10 @@ describe("createLeadAction", () => {
       skinId: "skin-1",
     });
 
-    const result = await createLeadAction({ status: "idle" }, formData);
+    const result = await createLeadAction({}, formData);
 
-    expect(result).toEqual({
-      status: "error",
-      message: "Não foi possível enviar seu contato. Tente novamente.",
-    });
+    expect(result.serverError).toBe(
+      "Não foi possível concluir a operação. Tente novamente.",
+    );
   });
 });

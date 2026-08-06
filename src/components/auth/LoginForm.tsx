@@ -1,17 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { type LoginActionState, loginAction } from "@/actions/auth.actions";
+import { loginAction } from "@/actions/auth.actions";
 import { Button } from "@/components/ui/forms/Button";
 import { Input } from "@/components/ui/forms/Input";
 
-const initialState: LoginActionState = { status: "idle" };
-
 export function LoginForm() {
-  const [state, formAction, pending] = useActionState(
-    loginAction,
-    initialState,
-  );
+  const [state, formAction, pending] = useActionState(loginAction, {});
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -31,8 +26,8 @@ export function LoginForm() {
         autoComplete="current-password"
         required
       />
-      {state.status === "error" && (
-        <p className="font-ui text-body-sm text-danger">{state.message}</p>
+      {state.serverError && (
+        <p className="font-ui text-body-sm text-danger">{state.serverError}</p>
       )}
       <Button type="submit" size="lg" fullWidth disabled={pending}>
         {pending ? "Entrando…" : "Entrar"}

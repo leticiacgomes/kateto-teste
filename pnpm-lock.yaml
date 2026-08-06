@@ -32,6 +32,9 @@ importers:
       next-auth:
         specifier: 5.0.0-beta.32
         version: 5.0.0-beta.32(next@16.3.0(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
+      next-safe-action:
+        specifier: ^8.6.0
+        version: 8.6.0(next@16.3.0(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       pg:
         specifier: ^8.22.0
         version: 8.22.0
@@ -44,6 +47,9 @@ importers:
       zod:
         specifier: ^4.4.3
         version: 4.4.3
+      zod-form-data:
+        specifier: ^3.0.3
+        version: 3.0.3(zod@4.4.3)
     devDependencies:
       '@biomejs/biome':
         specifier: 2.4.2
@@ -841,6 +847,9 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
+  '@rvf/set-get@7.0.3':
+    resolution: {integrity: sha512-Ky2uOJ5WpgqVev4W+dNlOIJ2R9b6heHD4PHx7NGI98XanfeH8Pl/m5wE0aZU3d/nD79iOUlZHBn0uxJU/DJF7g==}
+
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -1509,6 +1518,14 @@ packages:
       nodemailer:
         optional: true
 
+  next-safe-action@8.6.0:
+    resolution: {integrity: sha512-aS6e5XhLEmHIJp4wtfLOTSapcnjGZdVMmQIEOq8YCQ95Ej5WbZc+qfn9fP7zyLu33H/cigMZeWTP5NItirJYfg==}
+    engines: {node: '>=18.17'}
+    peerDependencies:
+      next: '>= 14.0.0'
+      react: '>= 18.2.0'
+      react-dom: '>= 18.2.0'
+
   next@16.3.0:
     resolution: {integrity: sha512-NEdGOzH+08eTXMUp9UYkA99Nhi5N6Thrhc1jgFOQgfgnGK/dA2hRwBpXep+exdFQrnwlRf/3Wixyp8lLBUpE2A==}
     engines: {node: '>=20.9.0'}
@@ -1931,6 +1948,11 @@ packages:
 
   zeptomatch@2.1.0:
     resolution: {integrity: sha512-KiGErG2J0G82LSpniV0CtIzjlJ10E04j02VOudJsPyPwNZgGnRKQy7I1R7GMyg/QswnE4l7ohSGrQbQbjXPPDA==}
+
+  zod-form-data@3.0.3:
+    resolution: {integrity: sha512-1qXJ6hayyUr3TqxfXqmm5qwCa8f/mnG/o8Itcny03iFyrwX/dZkCwfCcYoJDyQP8RxEkycw0c/ldCJXBeaCstg==}
+    peerDependencies:
+      zod: '>= 3.25.0'
 
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
@@ -2470,6 +2492,8 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
+
+  '@rvf/set-get@7.0.3': {}
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -3096,6 +3120,12 @@ snapshots:
       next: 16.3.0(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react: 19.2.8
 
+  next-safe-action@8.6.0(next@16.3.0(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+    dependencies:
+      next: 16.3.0(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+
   next@16.3.0(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
       '@next/env': 16.3.0
@@ -3453,5 +3483,10 @@ snapshots:
     dependencies:
       grammex: 3.1.13
       graphmatch: 1.1.1
+
+  zod-form-data@3.0.3(zod@4.4.3):
+    dependencies:
+      '@rvf/set-get': 7.0.3
+      zod: 4.4.3
 
   zod@4.4.3: {}

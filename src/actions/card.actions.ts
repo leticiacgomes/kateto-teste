@@ -1,34 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { authActionClient } from "@/middlewares/auth.middleware";
 import { cardService } from "@/services/card.service";
 import { LeadStatus } from "../../generated/prisma/client";
 
-const VALID_STATUSES = new Set<string>(Object.values(LeadStatus));
+const moveLeadSchema = z.object({
+  leadId: z.string().min(1),
+  status: z.enum(LeadStatus),
+  index: z.number().int().min(0),
+});
 
-export type MoveLeadActionResult =
-  | { ok: true }
-  | { ok: false; message: string };
-
-export async function moveLeadAction(
-  leadId: string,
-  status: string,
-  index: number,
-): Promise<MoveLeadActionResult> {
-  if (!VALID_STATUSES.has(status)) {
-    return { ok: false, message: `Status inválido: ${status}` };
-  }
-
-  try {
-    await cardService.moveLead({ leadId, status: status as LeadStatus, index });
-  } catch (error) {
-    console.error("moveLeadAction failed", error);
-    return {
-      ok: false,
-      message: "Não foi possível mover o lead. Tente novamente.",
-    };
-  }
-
-  revalidatePath("/dashboard");
-  return { ok: true };
-}
+export const moveLeadAction = authActionClient
+  .inputSchema(moveLeadSchema)
+  .stateAction(async ({ parsedInput }) => {
+    await cardService.moveLead(parsedInput);
+    revalidatePath("/dashboard");
+  });
