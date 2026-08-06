@@ -128,6 +128,9 @@ Ordem fixa: Marcelo → Rafael → Renato → Pedro → Leonardo → (repete).
 para gerar o design system da landing, prompt para revisar acessibilidade,
 subagente de revisão de código antes de commit, etc.)
 
+- [x] Skill de design de front-end (`.claude/skills/frontend-design/SKILL.md`)
+      — mobile-first, acessibilidade, proibição de fetching no client,
+      aderência ao design system. Aplicada em toda edição de componente React.
 - [ ] Prompt/skill de revisão de código pré-commit
 - [ ] Prompt de geração de testes
 
