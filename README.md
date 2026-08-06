@@ -130,18 +130,3 @@ pelo seed para criar o usuário admin). Default se omitidos:
 ```bash
 pnpm test   # vitest — lógica de round robin e demais services/actions
 ```
-
-## Status / o que falta
-
-- `Lead.position` (ordem dos cards dentro de uma coluna do kanban) é um
-  `Int` simples, renumerado por inteiro a cada movimentação — funcional para
-  o volume esperado, mas o próximo passo seria trocar para fractional
-  indexing (`Float`, padrão Trello) pra não tocar em cards não movidos. Ver
-  `docs/DECISOES.md`.
-- Varredura de responsividade/design system foi revisada por código mas não
-  validada visualmente em navegador (sem Chromium disponível neste
-  ambiente) — próximo passo manual antes de dar por fechada.
-- Round robin sob tráfego alto: mecanismo atual (`SELECT ... FOR UPDATE`)
-  é correto para o volume deste teste; alternativas para escala (Redis
-  `INCR`, fila via QStash) foram avaliadas e documentadas, não
-  implementadas — sem pico real a resolver. Ver `docs/DECISOES.md`.
