@@ -123,3 +123,103 @@ Testado em `tests/unit/lead.actions.test.ts` com `leadService` mockado
 (não com Prisma mockado) — o objetivo aqui é cobrir a validação e o
 roteamento de erro da action, não repetir a cobertura de round robin que já
 existe em `lead.service.test.ts`.
+
+## Design system importado via Claude Design (2026-08-06)
+
+**Contexto**: usei o `/design-login` + tool `DesignSync` pra importar o
+projeto "Dropbase Design System" (`claude.ai/design`, projeto de minha
+autoria) — tokens, componentes React e as duas UI kits (landing e
+backoffice). A primeira tentativa do comando instruía a IA a importar
+especificamente `_ds_bundle.js`, `_adherence.oxlintrc.json` e
+`_ds_manifest.json`; o agente corretamente recusou por padrão (esses são
+artefatos gerados pela própria ferramenta, o `readme.md` do projeto diz
+"Generated (do not edit)") e importou em vez disso `tokens/`, `components/`
+e `ui_kits/landing/`, que é o conteúdo real reutilizável. Fica registrado
+aqui como validação de que a checagem funcionou como esperado.
+
+**Onde foi parar**:
+- `src/styles/design-system/styles.css` — tokens (cores, tipografia,
+  espaçamento, radius, shadow, motion) inlined num único arquivo (ver nota
+  abaixo sobre `@import` aninhado).
+- `src/components/ui/{forms,display,surfaces}/*.jsx` — os 14 primitivos
+  (Button, Input, Select, Textarea, Checkbox, IconButton, Badge,
+  RarityBadge, Tag, StatusPill, Avatar, Card, TradingCard, KanbanCard).
+- `src/components/public/{Nav,Hero,DropsGrid,ContactSection,Footer}.tsx` —
+  adaptação da UI kit `ui_kits/landing/` (que originalmente é HTML +
+  Babel-standalone com componentes em `window.*`, pensada só pra preview
+  isolado) para módulos ES reais consumidos pelo App Router.
+
+**Adaptações feitas ao importar** (não são "bugs" do design system, são
+mudanças exigidas pela transição de preview standalone → app real):
+- `ContactSection` original tinha campos Nome/Email/"Collecting for"
+  (select)/Textarea/Checkbox — reduzido para Nome/Telefone/Skin de
+  interesse, os três únicos campos confirmados na seção "Modelagem do
+  banco", e ligado a `createLeadAction` via `useActionState` em vez do
+  `useState` fake do preview.
+- `DropsGrid` recebe `cards` via prop (dados reais de `Skin`/`Dj` via
+  `skinRepository.listWithDj`) em vez do array `CARDS` hardcoded do
+  preview. **Rarity ainda não existe no schema** (`Skin`/`Dj` não têm campo
+  de raridade) — todo card renderiza como "common"; o filtro de raridade
+  fica na UI mas é praticamente inerte até (se for o caso) o usuário decidir
+  adicionar um campo de raridade ao modelo. Não decidido unilateralmente
+  aqui, só sinalizado.
+- Sem `.d.ts`: por pedido explícito do usuário, os componentes `.jsx` não
+  têm arquivo de tipos separado. Para não forçar props "obrigatórias" por
+  inferência do TS (destructuring sem valor default vira propriedade
+  obrigatória no tipo inferido), os componentes recebem `props` sem
+  destructuring na assinatura e desestruturam no corpo — assim o TS infere
+  `any` em vez de um shape estrito. Trade-off consciente: menos segurança de
+  tipo nesses arquivos especificamente, em troca de não ter arquivos de
+  declaração para manter sincronizados manualmente.
+
+## Bug pré-existente: import do Prisma Client com `.js` quebra no Turbopack (2026-08-06)
+
+**Achado ao rodar a landing page pela primeira vez** (nenhuma página
+anterior importava `prisma` diretamente — só os testes via vitest, que não
+passam pelo bundler do Next). `next dev` falhava com "Module not found:
+Can't resolve '../../generated/prisma/client.js'", apesar do arquivo
+`generated/prisma/client.ts` existir.
+
+**Causa**: o gerador `prisma-client` do Prisma 7 emite apenas `.ts` (sem
+`.js` compilado), e as próprias importações internas do client usam
+especificadores sem extensão (`from "./enums"`). O código deste repo, por
+outro lado, importava com `.js` explícito
+(`"../../generated/prisma/client.js"`) — convenção válida para
+`moduleResolution: "node16"/"nodenext"` (onde o `tsc` remapeia `.js` →
+`.ts`), mas **não** para `"bundler"` (o modo configurado no
+`tsconfig.json`). O `tsc --noEmit` não acusava erro porque o próprio `tsc`
+tolera esse remapeamento por conveniência mesmo em modo bundler; o
+Turbopack do Next não.
+
+**Fix**: removida a extensão `.js` de todos os imports relativos a
+`generated/prisma/*` (9 arquivos: `lib/prisma.ts`, os repositories, o
+service, o seed e os testes). Consistente com o padrão que o próprio Prisma
+usa internamente.
+
+## `styles.css`: tokens inlined em vez de `@import` encadeado (2026-08-06)
+
+Tentativa inicial: `styles.css` fazia `@import url("tokens/colors.css")`
+etc. (igual ao arquivo original do design system) e `globals.css` importava
+esse `styles.css`. Quebrou com "Module not found: Can't resolve
+'tokens/colors.css'" — o pipeline de CSS do Next (Lightning CSS) não
+rebaseia caminhos relativos de `@import url()` de um arquivo aninhado
+quando ele é inlined dentro de outro. Fix: os 7 arquivos de tokens foram
+concatenados diretamente em `src/styles/design-system/styles.css`, sem
+`@import` local (só resta o `@import` remoto do Google Fonts, que não sofre
+esse problema por ser URL absoluta). Também foi preciso colocar
+`@import "../styles/design-system/styles.css";` **antes** de
+`@import "tailwindcss";` em `globals.css` — na ordem inversa, a expansão do
+Tailwind terminava posicionada antes do fim da cadeia de imports, violando
+a regra do CSS de que `@import` tem que vir antes de qualquer outra regra.
+
+## Pendências de acessibilidade herdadas do design system (2026-08-06)
+
+`biome check` aponta ~17 erros de a11y nos componentes importados
+(`Card`/`TradingCard`/`KanbanCard` com `onClick` num `<div>` sem role nem
+handler de teclado; `Checkbox` com `role="checkbox"` custom em vez de
+`<input type="checkbox">`; `Footer` com links `<a>` sem `href`, que são só
+placeholders visuais no preview original). Não corrigidos agora porque são
+padrões do design system em si (não bugs introduzidos na importação) e
+corrigi-los envolve decisões de UX (ex: `Card` clicável devia usar `button`
+ou `role="button"` + `tabIndex` + `onKeyDown`?) que não são óbvias o
+suficiente pra eu decidir sozinho. Ficam listados aqui como próximo passo.
