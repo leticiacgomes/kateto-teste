@@ -5,14 +5,79 @@ eletrônica — teste técnico. Duas partes: vitrine pública com formulário de
 contato, e uma área logada com kanban de leads (4 colunas fixas) distribuídos
 automaticamente entre 5 vendedores em round robin.
 
-Ver `CLAUDE.md` para a arquitetura de pastas e convenções de código, e
-`docs/DECISOES.md` para o racional das decisões técnicas e trade-offs
-considerados.
+Ver `CLAUDE.md` para as convenções de código, e `docs/DECISOES.md` para o
+racional das decisões técnicas e trade-offs considerados.
 
 ## Stack
 
 Next.js (App Router) + TypeScript, Tailwind CSS, Prisma ORM + Postgres,
-NextAuth (Credentials) na área logada, Vitest.
+NextAuth (Credentials) na área logada, @dnd-kit no drag-and-drop do kanban,
+zod + next-safe-action nas Server Actions, Vitest.
+
+## Arquitetura de pastas
+
+```
+src/
+  app/
+    page.tsx                       # landing pública
+    login/
+      page.tsx                     # login da área logada
+    (dashboard)/
+      dashboard/
+        page.tsx                   # kanban (protegido por proxy.ts)
+    api/
+      auth/[...nextauth]/route.ts  # única rota HTTP exigida pelo NextAuth
+    layout.tsx
+    globals.css
+
+  actions/
+    lead.actions.ts                # Server Action: criar lead + round robin
+    card.actions.ts                # Server Action: mover card entre colunas
+    auth.actions.ts                # Server Action: login
+
+  components/
+    public/                        # seções da landing
+    kanban/                        # colunas, card, drag context (dnd-kit)
+    auth/                          # LoginForm
+    ui/                            # design system (display/forms/surfaces)
+
+  services/
+    lead.service.ts                # orquestra criação de lead + round robin (transaction)
+    round-robin.service.ts         # regra pura do round robin (sem I/O)
+    card.service.ts                # mover/reordenar card entre colunas
+    auth.service.ts
+
+  repositories/
+    lead.repository.ts             # queries Prisma de Lead
+    roundRobin.repository.ts       # ponteiro do round robin
+    representative.repository.ts
+    skin.repository.ts
+    user.repository.ts
+
+  validators/
+    lead.schema.ts                 # validação zod do formulário
+
+  lib/
+    prisma.ts
+    safe-action.ts                 # wrapper next-safe-action
+    cn.ts
+    format.ts
+
+  middlewares/
+    auth.middleware.ts             # authActionClient p/ Server Actions autenticadas
+
+  styles/
+    design-system/styles.css
+
+  auth.ts                          # config do NextAuth (Credentials provider)
+  proxy.ts                         # middleware (renomeado nesta versão do Next) — protege /dashboard e /login
+
+tests/
+  unit/                            # testes vitest (round-robin, lead, card, auth services/actions)
+```
+
+Ver `CLAUDE.md` para as convenções de código que regem essa estrutura (Server
+Actions → services → repositories, regra de N+1, etc.).
 
 ## Setup
 

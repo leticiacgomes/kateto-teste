@@ -24,8 +24,8 @@ de DJs de música eletrônica. Tem duas partes:
 - Tailwind CSS
 - Prisma ORM + Postgres
 - NextAuth (Credentials provider) para a área logada
-- @hello-pangea/dnd para drag-and-drop do kanban
-- zod para validação de formulário
+- @dnd-kit (core/sortable/utilities) para drag-and-drop do kanban
+- zod + next-safe-action para validação e Server Actions tipadas
 - Vitest para testes da lógica de round robin
 
 Escolhida porque tem o melhor suporte de agentes de IA e documentação
@@ -37,38 +37,61 @@ Ver `docs/DECISOES.md`.
 ```
 src/
   app/
-    (public)/
-      page.tsx                  # landing pública
+    page.tsx                       # landing pública
+    login/
+      page.tsx                     # login da área logada
     (dashboard)/
       dashboard/
-        page.tsx                # kanban (protegido por middleware)
+        page.tsx                   # kanban (protegido por proxy.ts)
     api/
-      auth/[...nextauth]/route.ts   # única rota HTTP exigida pelo NextAuth
+      auth/[...nextauth]/route.ts  # única rota HTTP exigida pelo NextAuth
+    layout.tsx
+    globals.css
 
   actions/
-    lead.actions.ts              # Server Action: criar lead + round robin
-    card.actions.ts              # Server Action: mover card entre colunas
+    lead.actions.ts                # Server Action: criar lead + round robin
+    card.actions.ts                # Server Action: mover card entre colunas
+    auth.actions.ts                # Server Action: login
 
   components/
-    public/                     # seções da landing
-    kanban/                     # colunas, card, drag context
+    public/                        # seções da landing
+    kanban/                        # colunas, card, drag context (dnd-kit)
+    auth/                          # LoginForm
+    ui/                            # design system (display/forms/surfaces)
 
   services/
-    lead.service.ts             # regra de negócio (round robin)
+    lead.service.ts                # orquestra criação de lead + round robin (transaction)
+    round-robin.service.ts         # regra pura do round robin (sem I/O)
+    card.service.ts                # mover/reordenar card entre colunas
     auth.service.ts
 
   repositories/
-    lead.repository.ts          # queries Prisma de Lead
-    settings.repository.ts      # ponteiro do round robin
+    lead.repository.ts             # queries Prisma de Lead
+    roundRobin.repository.ts       # ponteiro do round robin
     representative.repository.ts
+    skin.repository.ts
+    user.repository.ts
 
   validators/
-    lead.schema.ts               # validação zod do formulário
+    lead.schema.ts                 # validação zod do formulário
 
   lib/
     prisma.ts
+    safe-action.ts                 # wrapper next-safe-action
+    cn.ts
+    format.ts
 
-  types/
+  middlewares/
+    auth.middleware.ts             # authActionClient p/ Server Actions autenticadas
+
+  styles/
+    design-system/styles.css
+
+  auth.ts                          # config do NextAuth (Credentials provider)
+  proxy.ts                         # middleware (renomeado nesta versão do Next) — protege /dashboard e /login
+
+tests/
+  unit/                            # testes vitest (round-robin, lead, card, auth services/actions)
 ```
 
 ## Como o agente deve trabalhar aqui
@@ -119,8 +142,11 @@ Ordem fixa: Marcelo → Rafael → Renato → Pedro → Leonardo → (repete).
   não em memória — precisa sobreviver a reinícios do servidor/deploys.
 - Atribuição roda dentro de uma transaction do Prisma para evitar dois leads
   simultâneos "roubarem" o mesmo vendedor.
-- Implementada em `services/lead.service.ts` e testada isoladamente em
-  `services/lead.service.test.ts`.
+- A regra pura (qual o próximo índice) vive em `services/round-robin.service.ts`,
+  sem I/O, testada em `tests/unit/round-robin.service.test.ts`. A orquestração
+  (ler o ponteiro, contar representantes, gravar o lead, tudo dentro da
+  transaction) vive em `services/lead.service.ts`, testada em
+  `tests/unit/lead.service.test.ts`.
 
 ## Skills / prompts específicos usados
 
