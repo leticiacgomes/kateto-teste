@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { formatPrice } from "@/lib/format";
 import { RarityBadge, type RarityTier } from "../display/RarityBadge";
 
 const rarityClasses = {
@@ -55,7 +56,7 @@ export type TradingCardProps = {
  */
 export function TradingCard(props: TradingCardProps) {
   const {
-    name = "Unknown Artist",
+    name = "Artista Desconhecido",
     alias,
     rarity = "common",
     genre,
@@ -74,20 +75,20 @@ export function TradingCard(props: TradingCardProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "relative block w-[260px] rounded-card p-[3px] text-left text-inherit",
+        "group relative block w-[260px] rounded-card p-[3px] text-left text-inherit",
         isFoil ? "bg-[image:var(--foil-sheen)]" : r.bg,
         onClick ? "cursor-pointer" : "cursor-default",
-        "shadow-md hover:-translate-y-1",
+        "shadow-md",
         r.hoverShadow,
-        "transition-[transform,box-shadow] duration-[140ms] ease-standard",
+        "transition-[box-shadow] duration-[140ms] ease-standard",
         className,
       )}
     >
-      <div className="flex flex-col overflow-hidden rounded-[calc(var(--radius-card)-2px)] bg-surface-1">
+      <div className="flex flex-col overflow-hidden rounded-[calc(var(--radius-card)-2px)] bg-surface-1 transition-transform duration-[140ms] ease-standard group-hover:-translate-y-1">
         {/* Art */}
         <div
           className={cn(
-            "relative aspect-[4/3] border-b border-line-subtle",
+            "relative aspect-[3/4] border-b border-line-subtle",
             artUrl ? "bg-cover bg-center bg-no-repeat" : r.artGlow,
           )}
           style={artUrl ? { backgroundImage: `url(${artUrl})` } : undefined}
@@ -102,7 +103,7 @@ export function TradingCard(props: TradingCardProps) {
           )}
           {!artUrl && (
             <span className="absolute inset-0 flex items-center justify-center font-mono text-caption text-fg-faint uppercase tracking-label">
-              Art
+              Arte
             </span>
           )}
         </div>
@@ -129,7 +130,7 @@ export function TradingCard(props: TradingCardProps) {
             )}
             {price != null && (
               <span className="font-mono text-body font-bold text-fg-strong">
-                {typeof price === "number" ? `$${price}` : price}
+                {typeof price === "number" ? `$${formatPrice(price)}` : price}
               </span>
             )}
           </div>

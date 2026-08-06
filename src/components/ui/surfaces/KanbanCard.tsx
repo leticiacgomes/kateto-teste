@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { formatPrice } from "@/lib/format";
 import { Avatar } from "../display/Avatar";
 import { type LeadStatus, STATUS, StatusPill } from "../display/StatusPill";
 
@@ -62,7 +63,7 @@ export function KanbanCard(props: KanbanCardProps) {
       </div>
       {want && (
         <div className="font-ui text-body-sm text-fg-muted leading-normal">
-          <span className="text-fg-faint">Wants </span>
+          <span className="text-fg-faint">Quer </span>
           {want}
         </div>
       )}
@@ -72,7 +73,7 @@ export function KanbanCard(props: KanbanCardProps) {
         ) : (
           value != null && (
             <span className="font-mono text-body-sm font-bold text-fg-body">
-              {typeof value === "number" ? `$${value.toLocaleString()}` : value}
+              {typeof value === "number" ? `$${formatPrice(value)}` : value}
             </span>
           )
         )}

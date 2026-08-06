@@ -9,6 +9,7 @@ import { RarityBadge } from "@/components/ui/display/RarityBadge";
 import { STATUS, StatusPill } from "@/components/ui/display/StatusPill";
 import { Button } from "@/components/ui/forms/Button";
 import { cn } from "@/lib/cn";
+import { formatPrice } from "@/lib/format";
 
 const STAGE_ORDER: LeadStatusKey[] = [
   "SEM_CONTATO",
@@ -103,7 +104,7 @@ export function LeadDrawer({
           <div className={rowClass}>
             <span className="text-fg-faint">Valor</span>
             <span className="font-mono text-body-sm font-bold text-fg-strong">
-              ${lead.skinPrice.toLocaleString()}
+              ${formatPrice(lead.skinPrice)}
             </span>
           </div>
           <div className={rowClass}>

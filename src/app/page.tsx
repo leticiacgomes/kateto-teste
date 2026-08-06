@@ -24,10 +24,20 @@ export default async function Home() {
     label: `${skin.dj.name} — ${skin.name}`,
   }));
 
+  const rarityRank: Record<DropCard["rarity"], number> = {
+    legendary: 4,
+    epic: 3,
+    rare: 2,
+    common: 1,
+  };
+  const heroCards = [...cards]
+    .sort((a, b) => rarityRank[b.rarity] - rarityRank[a.rarity])
+    .slice(0, 4);
+
   return (
     <div className="flex flex-1 flex-col">
       <Nav />
-      <Hero />
+      <Hero cards={heroCards} />
       <DropsGrid cards={cards} />
       <ContactSection skinOptions={skinOptions} />
       <Footer />

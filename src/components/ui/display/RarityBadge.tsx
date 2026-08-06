@@ -2,22 +2,22 @@ import { cn } from "@/lib/cn";
 
 const tierClasses = {
   common: {
-    label: "Common",
+    label: "Comum",
     badge: "bg-rarity-common/14 text-rarity-common border-rarity-common/55",
     dot: "bg-rarity-common shadow-[0_0_8px_var(--color-rarity-common)]",
   },
   rare: {
-    label: "Rare",
+    label: "Raro",
     badge: "bg-rarity-rare/14 text-rarity-rare border-rarity-rare/55",
     dot: "bg-rarity-rare shadow-[0_0_8px_var(--color-rarity-rare)]",
   },
   epic: {
-    label: "Epic",
+    label: "Épico",
     badge: "bg-rarity-epic/14 text-rarity-epic border-rarity-epic/55",
     dot: "bg-rarity-epic shadow-[0_0_8px_var(--color-rarity-epic)]",
   },
   legendary: {
-    label: "Legendary",
+    label: "Lendário",
     badge:
       "bg-[image:var(--foil-sheen)] text-ink-950 border-transparent shadow-[0_0_16px_rgba(245,197,66,0.4)]",
     dot: "bg-ink-950",

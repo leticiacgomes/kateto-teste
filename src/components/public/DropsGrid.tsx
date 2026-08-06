@@ -16,14 +16,18 @@ export type DropCard = {
   rarity: "common" | "rare" | "epic" | "legendary";
 };
 
-const RARITY_OPTIONS = ["All rarities", "Common", "Rare", "Epic", "Legendary"];
+const RARITY_OPTIONS = [
+  { value: "all", label: "Todas as raridades" },
+  { value: "common", label: "Comum" },
+  { value: "rare", label: "Raro" },
+  { value: "epic", label: "Épico" },
+  { value: "legendary", label: "Lendário" },
+];
 
 export function DropsGrid({ cards }: { cards: DropCard[] }) {
-  const [filter, setFilter] = useState("All rarities");
+  const [filter, setFilter] = useState("all");
   const shown =
-    filter === "All rarities"
-      ? cards
-      : cards.filter((card) => card.rarity === filter.toLowerCase());
+    filter === "all" ? cards : cards.filter((card) => card.rarity === filter);
 
   return (
     <section className="px-5 pt-10 pb-20 sm:px-10">

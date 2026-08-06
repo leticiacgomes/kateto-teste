@@ -22,7 +22,7 @@ export function Tag(props: TagProps) {
       {removable && (
         <button
           type="button"
-          aria-label="Remove"
+          aria-label="Remover"
           onClick={onRemove}
           className="inline-flex cursor-pointer border-none bg-transparent p-0 font-mono text-body-sm leading-none text-fg-faint hover:text-danger"
         >

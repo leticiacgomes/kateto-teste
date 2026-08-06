@@ -12,35 +12,35 @@ export function Footer() {
             dropbase<span className="text-brand">.</span>
           </div>
           <p className="max-w-[260px] font-ui text-body-sm leading-normal text-fg-faint">
-            Graded DJ trading cards for people who take the crate seriously.
+            Cards colecionáveis de DJs para quem leva a música a sério.
           </p>
         </div>
-        <nav aria-label="Catalog" className={col}>
-          <span className={head}>Catalog</span>
+        <nav aria-label="Catálogo" className={col}>
+          <span className={head}>Catálogo</span>
           <button type="button" className={link}>
-            New drops
+            Novidades
           </button>
           <button type="button" className={link}>
-            By genre
+            Por gênero
           </button>
           <button type="button" className={link}>
-            Legendary foils
-          </button>
-        </nav>
-        <nav aria-label="Company" className={col}>
-          <span className={head}>Company</span>
-          <button type="button" className={link}>
-            Grading
-          </button>
-          <button type="button" className={link}>
-            Journal
-          </button>
-          <button type="button" className={link}>
-            Careers
+            Edições lendárias
           </button>
         </nav>
-        <nav aria-label="Follow" className={col}>
-          <span className={head}>Follow</span>
+        <nav aria-label="Empresa" className={col}>
+          <span className={head}>Empresa</span>
+          <button type="button" className={link}>
+            Avaliação
+          </button>
+          <button type="button" className={link}>
+            Blog
+          </button>
+          <button type="button" className={link}>
+            Carreiras
+          </button>
+        </nav>
+        <nav aria-label="Redes sociais" className={col}>
+          <span className={head}>Redes sociais</span>
           <button type="button" className={link}>
             Instagram
           </button>
@@ -54,7 +54,7 @@ export function Footer() {
       </div>
       <div className="mx-auto mt-9 flex max-w-[1200px] flex-col gap-1 border-t border-line-subtle pt-5 font-mono text-micro text-fg-faint sm:flex-row sm:justify-between sm:gap-0">
         <span>© 2026 Dropbase</span>
-        <span>Terms · Privacy</span>
+        <span>Termos · Privacidade</span>
       </div>
     </footer>
   );

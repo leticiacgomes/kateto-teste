@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/display/Badge";
 import { STATUS } from "@/components/ui/display/StatusPill";
 import { KanbanCard } from "@/components/ui/surfaces/KanbanCard";
 import { cn } from "@/lib/cn";
+import { formatPrice } from "@/lib/format";
 
 export type LeadStatusKey = keyof typeof STATUS;
 
@@ -110,7 +111,7 @@ function Column({
         </div>
         {total > 0 && (
           <span className="font-mono text-micro text-fg-faint">
-            ${total.toLocaleString()}
+            ${formatPrice(total)}
           </span>
         )}
       </div>
