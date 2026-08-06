@@ -87,10 +87,39 @@ tutoriais Next.js + Prisma que o usuário possa encontrar.
 ## Pendências para a próxima etapa
 
 - [x] `lib/prisma.ts` — singleton do client com o driver adapter acima.
-- [ ] `services/lead.service.ts` — lógica de round robin (não modelada
-      ainda, só o schema que a suporta).
-- [ ] Confirmar se a estrutura de pastas vai para `src/` (como descrito no
-      `CLAUDE.md`) ou fica em `app/` na raiz (como o `create-next-app`
-      gerou) — hoje há uma divergência entre os dois.
+- [x] `services/lead.service.ts` — lógica de round robin, com testes em
+      `tests/unit/`.
+- [x] Estrutura de pastas ficou em `src/`, como descrito no `CLAUDE.md`.
 - [ ] (Melhoria, não bloqueante) `Lead.position` de `Int` para `Float`
       seguindo o padrão do Trello — ver seção acima.
+
+## `zod` como dependência direta (2026-08-06)
+
+**Contexto**: `zod` já estava presente em `node_modules` como dependência
+transitiva (via `next`/`prisma`), mas não declarada em `package.json`. O
+`CLAUDE.md` especifica zod para validação de formulário, então foi promovido
+a dependência direta (`pnpm add zod`) antes de criar
+`validators/lead.schema.ts` — evita depender de uma versão que pode sumir se
+uma dependência transitiva mudar.
+
+## `validators/lead.schema.ts` + `actions/lead.actions.ts` (2026-08-06)
+
+**Decisão**: `createLeadSchema` valida nome (2-120 caracteres), telefone
+(normalizado para 10-11 dígitos, aceitando qualquer formatação de entrada) e
+`skinId` (obrigatório), conforme os campos confirmados na seção "Modelagem
+do banco" acima.
+
+`createLeadAction` segue a assinatura `(prevState, formData)` do
+`useActionState` (React 19), documentada em
+`node_modules/next/dist/docs/01-app/02-guides/forms.md` desta versão do
+Next — checado antes de escrever o código por causa do aviso em
+`AGENTS.md` de que esta não é a versão de Next.js conhecida por padrão. A
+action não lança exceção: retorna `{ status: "error", fieldErrors }` na
+validação e `{ status: "error", message }` em falha do service, para o
+formulário (próxima etapa, na landing pública) renderizar os dois casos sem
+try/catch no componente.
+
+Testado em `tests/unit/lead.actions.test.ts` com `leadService` mockado
+(não com Prisma mockado) — o objetivo aqui é cobrir a validação e o
+roteamento de erro da action, não repetir a cobertura de round robin que já
+existe em `lead.service.test.ts`.
