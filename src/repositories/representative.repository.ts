@@ -2,7 +2,7 @@ import type {
   Prisma,
   PrismaClient,
   Representative,
-} from "../../generated/prisma/client.js";
+} from "../../generated/prisma/client";
 
 type Db = PrismaClient | Prisma.TransactionClient;
 

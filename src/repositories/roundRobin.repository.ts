@@ -2,7 +2,7 @@ import type {
   Prisma,
   PrismaClient,
   RoundRobinState,
-} from "../../generated/prisma/client.js";
+} from "../../generated/prisma/client";
 
 type Db = PrismaClient | Prisma.TransactionClient;
 

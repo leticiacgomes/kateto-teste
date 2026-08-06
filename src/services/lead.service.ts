@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { leadRepository } from "@/repositories/lead.repository";
 import { representativeRepository } from "@/repositories/representative.repository";
-import { roundRobinRepository } from "@/repositories/roundRobin.repository.js";
+import { roundRobinRepository } from "@/repositories/roundRobin.repository";
 import { roundRobinService } from "@/services/round-robin.service";
-import { type Lead, LeadStatus } from "../../generated/prisma/client.js";
+import { type Lead, LeadStatus } from "../../generated/prisma/client";
 
 export type CreateLeadInput = {
   name: string;

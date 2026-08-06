@@ -1,7 +1,7 @@
 import { beforeEach, vi } from "vitest";
 import { type DeepMockProxy, mockDeep, mockReset } from "vitest-mock-extended";
-import type { PrismaClient } from "../generated/prisma/client.js";
 import { prisma } from "@/lib/prisma";
+import type { PrismaClient } from "../generated/prisma/client";
 
 // Padrão da doc oficial do Prisma pra unit test (mock no nível do módulo):
 // https://www.prisma.io/docs/orm/prisma-client/testing/unit-testing

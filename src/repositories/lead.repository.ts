@@ -3,7 +3,7 @@ import type {
   LeadStatus,
   Prisma,
   PrismaClient,
-} from "../../generated/prisma/client.js";
+} from "../../generated/prisma/client";
 
 type Db = PrismaClient | Prisma.TransactionClient;
 
