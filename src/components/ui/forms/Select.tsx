@@ -1,7 +1,17 @@
-import React from "react";
+import { type SelectHTMLAttributes, useId } from "react";
 import { cn } from "@/lib/cn";
 
-export function Select(props) {
+export type SelectOption = string | { value: string; label: string };
+
+export type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+  label?: string;
+  hint?: string;
+  error?: string;
+  options?: SelectOption[];
+  wrapClassName?: string;
+};
+
+export function Select(props: SelectProps) {
   const {
     label,
     hint,
@@ -13,7 +23,7 @@ export function Select(props) {
     wrapClassName,
     ...rest
   } = props;
-  const generatedId = React.useId();
+  const generatedId = useId();
   const rid = id || generatedId;
 
   return (

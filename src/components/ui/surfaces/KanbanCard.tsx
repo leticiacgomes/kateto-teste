@@ -1,21 +1,33 @@
 import { cn } from "@/lib/cn";
-import { Avatar } from "../display/Avatar.jsx";
-import { STATUS, StatusPill } from "../display/StatusPill.jsx";
+import { Avatar } from "../display/Avatar";
+import { type LeadStatus, STATUS, StatusPill } from "../display/StatusPill";
+
+export type KanbanCardProps = {
+  name?: string;
+  handle?: string;
+  want?: string;
+  value?: number | string;
+  status?: LeadStatus;
+  updated?: string;
+  showStatus?: boolean;
+  onClick?: () => void;
+  className?: string;
+};
 
 /** A lead card for the backoffice kanban board. */
-export function KanbanCard(props) {
+export function KanbanCard(props: KanbanCardProps) {
   const {
     name,
     handle,
     want,
     value,
-    status = "new",
+    status = "SEM_CONTATO",
     updated,
     showStatus = false,
     onClick,
     className,
   } = props;
-  const s = STATUS[status] || STATUS.new;
+  const s = STATUS[status] || STATUS.SEM_CONTATO;
 
   return (
     <button

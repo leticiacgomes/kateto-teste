@@ -1,3 +1,4 @@
+import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 const sizeClasses = {
@@ -19,7 +20,16 @@ const variantClasses = {
     "bg-transparent text-danger border border-danger-dim hover:bg-danger/8 hover:border-danger",
 };
 
-export function Button(props) {
+export type ButtonVariant = keyof typeof variantClasses;
+export type ButtonSize = keyof typeof sizeClasses;
+
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+};
+
+export function Button(props: ButtonProps) {
   const {
     children,
     variant = "primary",

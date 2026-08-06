@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui/display/Badge.jsx";
-import { Button } from "@/components/ui/forms/Button.jsx";
+import { Badge } from "@/components/ui/display/Badge";
+import { Button } from "@/components/ui/forms/Button";
 
 function scrollToContact() {
   document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });

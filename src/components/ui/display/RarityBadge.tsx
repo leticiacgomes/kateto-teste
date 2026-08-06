@@ -24,7 +24,15 @@ const tierClasses = {
   },
 };
 
-export function RarityBadge(props) {
+export type RarityTier = keyof typeof tierClasses;
+
+export type RarityBadgeProps = {
+  tier?: RarityTier;
+  size?: "sm" | "md";
+  className?: string;
+};
+
+export function RarityBadge(props: RarityBadgeProps) {
   const { tier = "common", size = "md", className } = props;
   const t = tierClasses[tier] || tierClasses.common;
 

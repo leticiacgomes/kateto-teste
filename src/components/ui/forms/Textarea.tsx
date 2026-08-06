@@ -1,22 +1,26 @@
-import React from "react";
+import { type TextareaHTMLAttributes, useId } from "react";
 import { cn } from "@/lib/cn";
 
-export function Input(props) {
+export type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: string;
+  hint?: string;
+  error?: string;
+  wrapClassName?: string;
+};
+
+export function Textarea(props: TextareaProps) {
   const {
     label,
     hint,
     error,
-    leadingIcon,
-    size = "md",
     id,
+    rows = 4,
     className,
     wrapClassName,
     ...rest
   } = props;
-  const generatedId = React.useId();
+  const generatedId = useId();
   const rid = id || generatedId;
-  const heightClass =
-    size === "sm" ? "h-[34px]" : size === "lg" ? "h-12" : "h-10";
 
   return (
     <div className={cn("flex flex-col gap-1.5", wrapClassName)}>
@@ -28,28 +32,19 @@ export function Input(props) {
           {label}
         </label>
       )}
-      <div
+      <textarea
+        id={rid}
+        rows={rows}
         className={cn(
-          "flex items-center gap-2 rounded-sm border bg-surface-2 px-3",
+          "resize-y rounded-sm border bg-surface-2 px-3 py-2.5 font-ui text-body text-fg-strong leading-normal outline-none",
           "transition-[border-color,box-shadow] duration-[140ms] ease-standard",
           error
             ? "border-danger"
-            : "border-line-default focus-within:border-brand focus-within:shadow-glow-soft",
-          heightClass,
+            : "border-line-default focus:border-brand focus:shadow-glow-soft",
+          className,
         )}
-      >
-        {leadingIcon && (
-          <span className="flex text-fg-faint">{leadingIcon}</span>
-        )}
-        <input
-          id={rid}
-          className={cn(
-            "min-w-0 flex-1 border-none bg-transparent font-ui text-body text-fg-strong outline-none",
-            className,
-          )}
-          {...rest}
-        />
-      </div>
+        {...rest}
+      />
       {(hint || error) && (
         <span
           className={cn(

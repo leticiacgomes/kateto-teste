@@ -1,6 +1,15 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-export function Card(props) {
+export type CardProps = {
+  children?: ReactNode;
+  interactive?: boolean;
+  glow?: boolean;
+  onClick?: () => void;
+  className?: string;
+};
+
+export function Card(props: CardProps) {
   const {
     children,
     interactive = false,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/forms/Button.jsx";
+import { Button } from "@/components/ui/forms/Button";
 
 function scrollToContact() {
   document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });

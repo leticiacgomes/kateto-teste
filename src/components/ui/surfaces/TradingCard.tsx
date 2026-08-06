@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { RarityBadge } from "../display/RarityBadge.jsx";
+import { RarityBadge, type RarityTier } from "../display/RarityBadge";
 
 const rarityClasses = {
   common: {
@@ -36,11 +36,24 @@ const rarityClasses = {
   },
 };
 
+export type TradingCardProps = {
+  name?: string;
+  alias?: string;
+  rarity?: RarityTier;
+  genre?: string;
+  cardNumber?: string | number;
+  price?: number | string;
+  artUrl?: string;
+  foil?: boolean;
+  onClick?: () => void;
+  className?: string;
+};
+
 /**
  * The signature Dropbase DJ trading card. The art area is a placeholder surface — pass `artUrl`
  * to drop in real cover art. Legendary cards carry the foil frame + sheen.
  */
-export function TradingCard(props) {
+export function TradingCard(props: TradingCardProps) {
   const {
     name = "Unknown Artist",
     alias,

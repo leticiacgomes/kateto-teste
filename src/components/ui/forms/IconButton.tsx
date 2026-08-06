@@ -1,3 +1,4 @@
+import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 const sizeClasses = {
@@ -15,7 +16,17 @@ const variantClasses = {
     "bg-brand text-brand-contrast border border-brand hover:bg-brand-hover hover:shadow-glow-magenta",
 };
 
-export function IconButton(props) {
+export type IconButtonVariant = keyof typeof variantClasses;
+export type IconButtonSize = keyof typeof sizeClasses;
+
+export type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  label?: string;
+  variant?: IconButtonVariant;
+  size?: IconButtonSize;
+  active?: boolean;
+};
+
+export function IconButton(props: IconButtonProps) {
   const {
     children,
     label,

@@ -92,6 +92,17 @@ src/
   nem subir nenhuma rota.
 - Nomes em inglês, sempre.
 - Commits pequenos e descritivos, um por etapa concluída.
+- **Evitar N+1 a qualquer custo**: nunca fazer `await` de uma query Prisma
+  (`findUnique`, `update`, etc.) dentro de um `for`/`.map`/`.forEach` sobre
+  uma lista vinda do banco. Usar sempre uma operação em lote — `findMany`
+  com `where: { id: { in: [...] } }`, `updateMany`, `createMany`, ou, quando
+  cada linha precisa de um valor diferente (ex: reordenar `position` de uma
+  coluna do kanban), uma única query raw (`$executeRaw`/`$queryRaw` com
+  `Prisma.sql`/`Prisma.join`) dentro da mesma transaction. Isso vale tanto
+  pra `repositories/` quanto pra qualquer loop em `services/` que dispare
+  queries. Ver `services/card.service.ts` +
+  `repositories/lead.repository.ts#reorderColumn` como referência do
+  padrão, e `docs/DECISOES.md` pelo caso que motivou essa regra.
 
 ### O que o agente NÃO deve fazer sozinho
 - Não decidir a regra de round robin sem confirmar comigo — é o core do

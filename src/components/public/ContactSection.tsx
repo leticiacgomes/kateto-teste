@@ -5,9 +5,9 @@ import {
   type CreateLeadActionState,
   createLeadAction,
 } from "@/actions/lead.actions";
-import { Button } from "@/components/ui/forms/Button.jsx";
-import { Input } from "@/components/ui/forms/Input.jsx";
-import { Select } from "@/components/ui/forms/Select.jsx";
+import { Button } from "@/components/ui/forms/Button";
+import { Input } from "@/components/ui/forms/Input";
+import { Select } from "@/components/ui/forms/Select";
 
 const initialState: CreateLeadActionState = { status: "idle" };
 

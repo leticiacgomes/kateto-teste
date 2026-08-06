@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const toneClasses = {
@@ -27,7 +28,16 @@ const toneClasses = {
   },
 };
 
-export function Badge(props) {
+export type BadgeTone = keyof typeof toneClasses;
+
+export type BadgeProps = {
+  children?: ReactNode;
+  tone?: BadgeTone;
+  solid?: boolean;
+  className?: string;
+};
+
+export function Badge(props: BadgeProps) {
   const { children, tone = "neutral", solid = false, className } = props;
   const t = toneClasses[tone] || toneClasses.neutral;
   return (

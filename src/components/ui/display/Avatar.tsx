@@ -13,6 +13,17 @@ const toneClasses = {
   gold: "bg-gold-500/18 text-gold-500 border-gold-500/55",
 };
 
+export type AvatarTone = keyof typeof toneClasses;
+export type AvatarSize = keyof typeof sizeClasses;
+
+export type AvatarProps = {
+  name?: string;
+  src?: string;
+  size?: AvatarSize;
+  tone?: AvatarTone;
+  className?: string;
+};
+
 function initials(name = "") {
   return name
     .trim()
@@ -23,7 +34,7 @@ function initials(name = "") {
     .toUpperCase();
 }
 
-export function Avatar(props) {
+export function Avatar(props: AvatarProps) {
   const { name = "", src, size = "md", tone = "magenta", className } = props;
 
   return (

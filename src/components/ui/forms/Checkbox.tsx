@@ -1,7 +1,17 @@
-import React from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 
-export function Checkbox(props) {
+export type CheckboxProps = {
+  label?: string;
+  checked?: boolean;
+  defaultChecked?: boolean;
+  onChange?: (checked: boolean) => void;
+  disabled?: boolean;
+  id?: string;
+  className?: string;
+};
+
+export function Checkbox(props: CheckboxProps) {
   const {
     label,
     checked,
@@ -11,12 +21,12 @@ export function Checkbox(props) {
     id,
     className,
   } = props;
-  const generatedId = React.useId();
+  const generatedId = useId();
   const rid = id || generatedId;
-  const [internal, setInternal] = React.useState(!!defaultChecked);
+  const [internal, setInternal] = useState(!!defaultChecked);
   const isControlled = checked !== undefined;
   const on = isControlled ? checked : internal;
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
     const next = e.target.checked;
     if (!isControlled) setInternal(next);

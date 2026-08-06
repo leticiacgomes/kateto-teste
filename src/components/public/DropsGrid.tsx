@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Select } from "@/components/ui/forms/Select.jsx";
-import { TradingCard } from "@/components/ui/surfaces/TradingCard.jsx";
+import { Select } from "@/components/ui/forms/Select";
+import { TradingCard } from "@/components/ui/surfaces/TradingCard";
 
 export type DropCard = {
   id: string;

@@ -1,6 +1,14 @@
+import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-export function Tag(props) {
+export type TagProps = {
+  children?: ReactNode;
+  onRemove?: () => void;
+  removable?: boolean;
+  className?: string;
+};
+
+export function Tag(props: TagProps) {
   const { children, onRemove, removable = false, className } = props;
   return (
     <span

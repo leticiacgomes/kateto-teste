@@ -223,3 +223,91 @@ padrões do design system em si (não bugs introduzidos na importação) e
 corrigi-los envolve decisões de UX (ex: `Card` clicável devia usar `button`
 ou `role="button"` + `tabIndex` + `onKeyDown`?) que não são óbvias o
 suficiente pra eu decidir sozinho. Ficam listados aqui como próximo passo.
+
+## Troca de `@hello-pangea/dnd` por `@dnd-kit` — sugestão do usuário, aceita (2026-08-06)
+
+**Contexto**: o drag-and-drop do kanban (`KanbanBoard.tsx`, feito com
+`@hello-pangea/dnd`) não funcionava — nenhum card arrastava. Primeira
+hipótese do agente: `reactCompiler: true` está ligado em `next.config.ts`
+desde o scaffold inicial do projeto (commit `136c8f4`, antes do kanban
+existir), e há relatos conhecidos de incompatibilidade entre React Compiler
+e `@hello-pangea/dnd`/`react-beautiful-dnd` (a lib registra os handlers de
+drag fora do ciclo padrão de render, e a auto-memoização do compiler pode
+pular essa reinscrição). Aplicada a diretiva `"use no memo"` no componente
+como escape hatch documentado — **não resolveu**; o usuário testou e o drag
+continuou não funcionando.
+
+**Decisão do usuário**: em vez de continuar investigando a causa raiz do
+`@hello-pangea/dnd` (biblioteca com commits mais espaçados), o usuário
+pediu diretamente a troca para `@dnd-kit`, por ser mais atualizado. Decisão
+estrutural do usuário, não do agente — registrada aqui conforme
+`CLAUDE.md`.
+
+**O que foi feito**:
+- `pnpm remove @hello-pangea/dnd`; `pnpm add @dnd-kit/core @dnd-kit/sortable
+  @dnd-kit/utilities`.
+- `KanbanBoard.tsx` reescrito: `DragDropContext`/`Droppable`/`Draggable` (API
+  de render props) trocados por `DndContext` + `SortableContext` por coluna,
+  `useSortable` nos cards, `useDroppable` nas colunas (padrão multi-container
+  do dnd-kit) e `DragOverlay` para o preview do card durante o arraste. A
+  diretiva `"use no memo"` foi removida — não é mais necessária, e não havia
+  evidência de que fosse a causa real do problema original.
+- A assinatura pública `onMove(leadId, status, index)` não mudou, então
+  `DashboardBoard.tsx` e `actions/card.actions.ts` não precisaram de
+  alteração estrutural.
+
+**Bugs pré-existentes expostos ao validar a troca** (nenhum é do dnd-kit em
+si; todos ficaram escondidos porque o drag nunca tinha funcionado de verdade
+antes, então esses caminhos de código nunca tinham sido exercitados):
+
+1. **`setState` durante render de outro componente** — o `onMove` (que
+   dispara `dispatchMove` no `DashboardBoard`, pai) estava sendo chamado de
+   dentro do updater funcional passado a `setLeads` no `KanbanBoard`. Updaters
+   de `setState` precisam ser puros; corrigido calculando o novo estado e
+   chamando `onMove` **depois** do `setLeads`, fora do updater
+   (`KanbanBoard.tsx`, `handleDragEnd`).
+2. **Hydration mismatch no `aria-describedby`** — o dnd-kit gera esse
+   atributo (`DndDescribedBy-N`) com um contador global em módulo
+   (`useUniqueId` de `@dnd-kit/utilities`), que diverge entre o processo do
+   servidor (contador acumulado entre requests) e o cliente (sempre começa
+   do zero). Corrigido passando `id="kanban-board"` fixo pro `DndContext`,
+   que faz a lib usar esse valor em vez do contador.
+3. **`useActionState` chamado fora de transition** — `dispatchMove` (função
+   retornada por `useActionState` em `DashboardBoard.tsx`) estava sendo
+   chamada direto de um event handler comum (`onMove` do kanban, `onStage`
+   do drawer), não de uma `action`/`formAction`. Corrigido envolvendo as
+   duas chamadas com `startTransition` (de `"react"`).
+
+**Efeito colateral da validação**: como não há browser interativo neste
+ambiente, a correção foi validada simulando o drag via Playwright headless
+contra o `next dev` que já estava rodando. Isso persistiu de verdade duas
+mudanças de coluna em leads reais do banco de dev (não é ambiente de
+produção) — sinalizado ao usuário na hora, sem reverter automaticamente.
+
+## N+1 em `cardService.moveLead` — apontado pelo usuário (2026-08-06)
+
+**Achado**: `cardService.moveLead` renumerava a coluna de destino com um
+`for` fazendo `await leadRepository.updateStatusAndPosition(...)` por lead
+— um `UPDATE` por linha, sequencial. Numa coluna com N leads, mover um card
+disparava N round-trips ao banco dentro da mesma transaction.
+
+**Fix**: `leadRepository.updateStatusAndPosition` (update de 1 lead) virou
+`leadRepository.reorderColumn` (update de todos os leads da coluna em uma
+única query), usando `$executeRaw` com `UPDATE ... FROM (VALUES ...) AS
+data(id, position) WHERE lead.id = data.id` — o padrão pra "cada linha
+recebe um valor diferente" quando `updateMany` não serve (ele só aceita um
+mesmo `data` pra todas as linhas do `where`). `position` continua `Int`
+simples (ver seção "`Lead.position` como Int simples" acima) — o que mudou
+é só a forma de aplicar as N atualizações, não a estratégia de
+renumeração em si.
+
+**Instrução adicionada ao `CLAUDE.md`**: regra permanente em "Convenções de
+código" proibindo `await` de query Prisma dentro de loop sobre dado vindo
+do banco, com o padrão a seguir (batch query / `updateMany` / raw SQL em
+lote) e apontando este caso como referência.
+
+**Testes**: `tests/unit/card.service.test.ts` atualizado — antes verificava
+`prismaMock.lead.update` sendo chamado N vezes com argumentos exatos; agora
+verifica que `lead.update` **nunca** é chamado e que `$executeRaw` é
+chamado exatamente uma vez por `moveLead`, o que barra regressão pro
+padrão N+1 caso alguém reintroduza o loop no futuro.
