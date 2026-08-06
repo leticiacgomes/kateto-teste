@@ -311,3 +311,79 @@ lote) e apontando este caso como referência.
 verifica que `lead.update` **nunca** é chamado e que `$executeRaw` é
 chamado exatamente uma vez por `moveLead`, o que barra regressão pro
 padrão N+1 caso alguém reintroduza o loop no futuro.
+
+## Autenticação da área logada: NextAuth v5 (beta) + Credentials, JWT sem adapter (2026-08-06)
+
+**Contexto**: o dashboard (`/dashboard`) estava com zero proteção — nenhuma
+sessão, nenhuma rota de login, nenhum middleware — apesar do `CLAUDE.md`
+especificar "NextAuth (Credentials provider)" e do model `User` já existir
+no schema desde a modelagem inicial. Esse foi o próximo passo assumido pelo
+agente após revisão do estado do projeto, confirmado com o usuário antes de
+começar (login único de admin, não um login por vendedor — já estava restrito
+na seção "Modelagem do banco" acima).
+
+**Versão do NextAuth**: `next-auth@5.0.0-beta.32` (Auth.js v5), não a v4.
+Checado antes de instalar: o `peerDependencies` da v5 aceita
+`next: "^14.0.0-0 || ^15.0.0 || ^16.0.0"`; a v4 não suporta o App Router da
+forma como o projeto usa (Server Actions, `auth()` como helper universal).
+Ainda em beta upstream, mas é a única linha da lib compatível com Next 16 —
+registrado aqui porque é uma dependência de versão pre-1.0, para o caso de
+precisar revisar se uma versão estável sair depois.
+
+**Sessão**: estratégia `jwt` (sem `adapter`, sem tabela `Session` no
+schema). Coerente com o `CLAUDE.md` já ter modelado `User` só com
+`email`/`passwordHash`/`name` — não haveria onde guardar sessões de banco
+sem adicionar uma tabela nova, e o Credentials provider do NextAuth exige
+JWT quando não há adapter.
+
+**Senha**: `bcryptjs` (puro JS) em vez de `bcrypt` (binding nativo,
+`node-gyp`). Evita depender de toolchain de compilação C++ dentro do
+container só pra hashear senha — o custo de performance de `bcryptjs` é
+irrelevante no volume de logins de um admin único.
+
+**Descoberta que quase quebrou tudo — `middleware.ts` foi renomeado pra
+`proxy.ts` nesta versão do Next.js**: o padrão universal de proteger rotas
+com NextAuth é um `middleware.ts` que envolve `auth()`. Seguindo o aviso do
+`AGENTS.md` (esta não é a versão de Next.js do treinamento), o agente
+checou `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`
+**antes** de escrever esse arquivo — confirma: *"The `middleware` file
+convention is deprecated and has been renamed to `proxy`"*. O arquivo é
+`src/proxy.ts` (mesmo nível de `app/`, dentro de `src/`), com export
+default recebendo `NextRequest`/devolvendo `NextResponse` — o wrapper
+`auth()` do NextAuth não sabe nem se importa com o nome do arquivo, só
+precisa desse contrato, então `export default auth((req) => {...})`
+funciona igual estaria em `middleware.ts`. Validado batendo direto na API
+(`/api/auth/callback/credentials`, `/api/auth/signout`) via `curl` com jar
+de cookies contra o `next dev` já rodando: senha certa redireciona pra
+`/dashboard` com cookie de sessão válido (200 nas requisições seguintes),
+senha errada volta pra `/login?error=CredentialsSignin`, e depois do
+signout o `/dashboard` volta a dar 307 pro login.
+
+**Onde ficou** (seguindo a arquitetura de pastas do `CLAUDE.md`):
+- `src/repositories/user.repository.ts` — `findByEmail`.
+- `src/services/auth.service.ts` — `verifyCredentials(email, password)`,
+  isolado de UI/rota (mesmo padrão de `services/lead.service.ts`), testado
+  em `tests/unit/auth.service.test.ts` sem subir NextAuth nem Prisma real.
+- `src/auth.ts` — config do NextAuth (`handlers`, `signIn`, `signOut`,
+  `auth`), Credentials provider chamando `authService.verifyCredentials`.
+- `src/app/api/auth/[...nextauth]/route.ts` — a única rota HTTP que o
+  `CLAUDE.md` já previa pro NextAuth, reexportando `handlers.GET/POST`.
+- `src/proxy.ts` — protege `/dashboard/*`, redireciona autenticado saindo
+  de `/login`.
+- `src/actions/auth.actions.ts` — `loginAction` (`useActionState`, captura
+  `AuthError` do NextAuth e devolve mensagem genérica em português) e
+  `logoutAction` (usado num `<form action={logoutAction}>` no `Topbar`, sem
+  precisar de client component).
+- `src/app/login/page.tsx` + `src/components/auth/LoginForm.tsx`.
+- `types/next-auth.d.ts` — module augmentation pra `session.user.id`.
+
+**Seed do admin**: `prisma/seed.ts` cria/atualiza (`upsert`) um `User` com
+`bcrypt.hash`. Credenciais via `ADMIN_EMAIL`/`ADMIN_PASSWORD` (env), com
+fallback pra `admin@dropbase.com` / `dropbase123` em dev — documentado no
+`.env.example`. Não é uma tela de cadastro de usuário (fora de escopo, só
+existe 1 admin), então seed é o único jeito de criar/trocar essa conta por
+enquanto.
+
+**Pendência**: `AUTH_SECRET` no `.env` local foi gerado com
+`openssl rand -base64 32` só pra dev; **precisa ser regenerado** antes de
+qualquer deploy real (o valor de dev não deve ir pra produção).

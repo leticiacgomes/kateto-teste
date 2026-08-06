@@ -1,3 +1,5 @@
+import { logoutAction } from "@/actions/auth.actions";
+
 export function Topbar({ totalLeads }: { totalLeads: number }) {
   return (
     <header className="flex items-center justify-between border-b border-line-subtle bg-surface-app px-6 py-3.5">
@@ -9,6 +11,14 @@ export function Topbar({ totalLeads }: { totalLeads: number }) {
           Pipeline · {totalLeads} {totalLeads === 1 ? "lead" : "leads"}
         </div>
       </div>
+      <form action={logoutAction}>
+        <button
+          type="submit"
+          className="cursor-pointer rounded-sm border border-line-default bg-transparent px-3.5 py-2 font-ui text-body-sm text-fg-muted transition-colors duration-[140ms] ease-standard hover:border-line-strong hover:text-fg-strong"
+        >
+          Sair
+        </button>
+      </form>
     </header>
   );
 }

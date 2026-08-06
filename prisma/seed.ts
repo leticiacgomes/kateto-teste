@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcryptjs";
 import pg from "pg";
 import { PrismaClient, type Rarity } from "../generated/prisma/client";
 
@@ -83,6 +84,20 @@ async function main() {
     where: { id: 1 },
     update: {},
     create: { id: 1, nextIndex: 0 },
+  });
+
+  const adminEmail = process.env.ADMIN_EMAIL ?? "admin@dropbase.com";
+  const adminPassword = process.env.ADMIN_PASSWORD ?? "dropbase123";
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: { passwordHash: adminPasswordHash },
+    create: {
+      email: adminEmail,
+      passwordHash: adminPasswordHash,
+      name: "Admin",
+    },
   });
 
   for (const dj of DJS) {
