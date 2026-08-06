@@ -35,7 +35,7 @@ export function LeadDrawer({
   if (!lead) return null;
 
   const rowClass =
-    "flex justify-between border-b border-line-subtle py-2.5 font-ui text-[14px]";
+    "flex justify-between border-b border-line-subtle py-2.5 font-ui text-body";
 
   return (
     <>
@@ -43,23 +43,28 @@ export function LeadDrawer({
         type="button"
         aria-label="Fechar detalhes do lead"
         onClick={onClose}
-        className="absolute inset-0 z-40 cursor-default bg-surface-overlay backdrop-blur-[2px]"
+        className="fixed inset-0 z-40 cursor-default bg-surface-overlay backdrop-blur-[2px]"
       />
-      <aside className="absolute top-0 right-0 bottom-0 z-50 flex w-[420px] flex-col border-l border-line-default bg-surface-1 shadow-lg">
+      <aside
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-xl border-t border-line-default bg-surface-1 shadow-lg",
+          "sm:inset-x-auto sm:top-0 sm:right-0 sm:bottom-0 sm:max-h-none sm:w-[420px] sm:rounded-none sm:border-t-0 sm:border-l",
+        )}
+      >
         <div className="flex items-center gap-3.5 border-b border-line-subtle px-6 py-5.5">
           <Avatar name={lead.name} size="lg" tone="magenta" />
           <div className="flex-1">
-            <div className="font-display text-[20px] font-bold tracking-[-0.02em] text-fg-strong">
+            <div className="font-display text-h4 font-bold tracking-heading text-fg-strong">
               {lead.name}
             </div>
-            <div className="font-mono text-[12px] text-fg-faint">
+            <div className="font-mono text-caption text-fg-faint">
               {lead.phone}
             </div>
           </div>
           <StatusPill status={lead.status} />
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-4.5">
-          <div className="mb-1.5 font-mono text-[11px] uppercase tracking-label text-fg-faint">
+          <div className="mb-1.5 font-mono text-micro uppercase tracking-label text-fg-faint">
             Mover para
           </div>
           <div className="mb-5.5 flex flex-wrap gap-2">
@@ -72,7 +77,7 @@ export function LeadDrawer({
                   type="button"
                   onClick={() => onStage(lead.id, key)}
                   className={cn(
-                    "inline-flex cursor-pointer items-center gap-[7px] rounded-full border px-[11px] py-1.5 font-ui text-[13px]",
+                    "inline-flex cursor-pointer items-center gap-[7px] rounded-full border px-[11px] py-1.5 font-ui text-body-sm",
                     on
                       ? cn("bg-surface-3 text-fg-strong", s.ring)
                       : "border-line-default text-fg-muted",
@@ -87,7 +92,7 @@ export function LeadDrawer({
 
           <div className={rowClass}>
             <span className="text-fg-faint">Skin de interesse</span>
-            <span className="font-mono text-[13px] text-fg-body">
+            <span className="font-mono text-body-sm text-fg-body">
               {lead.djName} — {lead.skinName}
             </span>
           </div>
@@ -97,19 +102,19 @@ export function LeadDrawer({
           </div>
           <div className={rowClass}>
             <span className="text-fg-faint">Valor</span>
-            <span className="font-mono text-[13px] font-bold text-fg-strong">
+            <span className="font-mono text-body-sm font-bold text-fg-strong">
               ${lead.skinPrice.toLocaleString()}
             </span>
           </div>
           <div className={rowClass}>
             <span className="text-fg-faint">Vendedor</span>
-            <span className="font-mono text-[13px] text-fg-body">
+            <span className="font-mono text-body-sm text-fg-body">
               {lead.representativeName}
             </span>
           </div>
           <div className={rowClass}>
             <span className="text-fg-faint">Criado em</span>
-            <span className="font-mono text-[13px] text-fg-body">
+            <span className="font-mono text-body-sm text-fg-body">
               {lead.createdAtLabel}
             </span>
           </div>

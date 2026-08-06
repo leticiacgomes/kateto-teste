@@ -16,22 +16,22 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
   return (
     <section
       id="contact"
-      className="border-t border-line-subtle bg-surface-app-deep px-10 py-20"
+      className="border-t border-line-subtle bg-surface-app-deep px-5 py-14 sm:px-10 sm:py-20"
     >
-      <div className="mx-auto grid max-w-[1000px] grid-cols-2 items-center gap-16">
+      <div className="mx-auto grid max-w-[1000px] grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
         <div>
-          <div className="mb-3 font-mono text-[12px] uppercase tracking-label text-magenta-400">
+          <div className="mb-3 font-mono text-caption uppercase tracking-label text-magenta-400">
             ESCOLHA O SEU PREFERIDO
           </div>
-          <h2 className="mb-4 font-display text-[40px] leading-[1.05] font-bold tracking-[-0.025em] text-fg-strong">
+          <h2 className="mb-4 font-display text-h3 leading-tight font-bold tracking-heading text-fg-strong sm:text-h2">
             Qual card você procura?
           </h2>
-          <p className="font-ui text-[16px] leading-[1.6] text-fg-muted">
+          <p className="font-ui text-body leading-relaxed text-fg-muted">
             Preencha seus dados e informe qual raridade você deseja adquirir.
             Nossa equipe entratá em contato para dar continuidade :)
           </p>
         </div>
-        <div className="rounded-[14px] border border-line-subtle bg-surface-1 p-7 shadow-lg">
+        <div className="rounded-card border border-line-subtle bg-surface-1 p-7 shadow-lg">
           {success ? (
             <div className="px-3 py-10 text-center">
               <div className="mx-auto mb-[18px] flex h-[52px] w-[52px] items-center justify-center rounded-full border border-lime-500 bg-lime-500/12 shadow-glow-lime">
@@ -49,10 +49,10 @@ export function ContactSection({ skinOptions }: { skinOptions: SkinOption[] }) {
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
               </div>
-              <div className="mb-1.5 font-display text-[20px] font-semibold text-fg-strong">
+              <div className="mb-1.5 font-display text-h4 font-semibold text-fg-strong">
                 Você está na lista.
               </div>
-              <div className="font-ui text-[14px] text-fg-muted">
+              <div className="font-ui text-body text-fg-muted">
                 Um curador entra em contato em breve.
               </div>
             </div>

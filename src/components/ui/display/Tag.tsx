@@ -24,7 +24,7 @@ export function Tag(props: TagProps) {
           type="button"
           aria-label="Remove"
           onClick={onRemove}
-          className="inline-flex cursor-pointer border-none bg-transparent p-0 font-mono text-[13px] leading-none text-fg-faint hover:text-danger"
+          className="inline-flex cursor-pointer border-none bg-transparent p-0 font-mono text-body-sm leading-none text-fg-faint hover:text-danger"
         >
           ×
         </button>

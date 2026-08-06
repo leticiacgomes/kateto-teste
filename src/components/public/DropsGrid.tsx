@@ -26,18 +26,19 @@ export function DropsGrid({ cards }: { cards: DropCard[] }) {
       : cards.filter((card) => card.rarity === filter.toLowerCase());
 
   return (
-    <section className="px-10 pt-10 pb-20">
-      <div className="mb-7 flex items-end justify-between">
+    <section className="px-5 pt-10 pb-20 sm:px-10">
+      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 font-mono text-[12px] uppercase tracking-label text-magenta-400">
+          <div className="mb-2 font-mono text-caption uppercase tracking-label text-magenta-400">
             Destaques da semana
           </div>
-          <h2 className="font-display text-[34px] font-bold tracking-[-0.02em] text-fg-strong">
+          <h2 className="font-display text-h2 font-bold tracking-heading text-fg-strong">
             CARDS
           </h2>
         </div>
-        <div className="w-[200px]">
+        <div className="w-full sm:w-[200px]">
           <Select
+            aria-label="Filtrar por raridade"
             options={RARITY_OPTIONS}
             value={filter}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>

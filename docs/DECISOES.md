@@ -224,6 +224,13 @@ corrigi-los envolve decisões de UX (ex: `Card` clicável devia usar `button`
 ou `role="button"` + `tabIndex` + `onKeyDown`?) que não são óbvias o
 suficiente pra eu decidir sozinho. Ficam listados aqui como próximo passo.
 
+**Atualização (2026-08-06, ver "Varredura de conformidade com
+`frontend-design`" mais abaixo)**: `Card`/`TradingCard`/`KanbanCard` e
+`Checkbox` já estavam corrigidos em algum commit posterior a este registro
+(hoje usam `<button type="button">` e `<input type="checkbox">` reais,
+respectivamente — conferido lendo o código atual antes de reportar). Só o
+item do `Footer` ainda estava pendente; resolvido na varredura de hoje.
+
 ## Troca de `@hello-pangea/dnd` por `@dnd-kit` — sugestão do usuário, aceita (2026-08-06)
 
 **Contexto**: o drag-and-drop do kanban (`KanbanBoard.tsx`, feito com
@@ -495,3 +502,75 @@ faz. Migrar os três só por consistência seria mudança sem necessidade real
 na camada de action, não de service) continua passando, `3 passed`.
 `tsc --noEmit` sem erros novos além dos pré-existentes por dependências não
 instaladas neste ambiente sandbox (`next-auth`, `bcryptjs`).
+
+## Varredura de conformidade com `frontend-design` (2026-08-06)
+
+**Contexto**: usuário pediu pra escanear todos os componentes e corrigir o
+que não seguisse as 4 regras de `.claude/skills/frontend-design/SKILL.md`
+(mobile-first, acessibilidade, proibição de fetch no client, design system).
+Nenhum fetch client-side encontrado — os outros três pontos tinham dívida
+real, listada abaixo.
+
+**Mobile-first**:
+- `ContactSection.tsx` tinha `grid-cols-2` fixo (o exemplo que o próprio
+  `SKILL.md` já citava como pendente) → `grid-cols-1 md:grid-cols-2`.
+- `Footer.tsx` tinha `grid-cols-[2fr_1fr_1fr_1fr]` fixo, quebraria a partir
+  de ~500px → `grid-cols-2` (coluna da marca em `col-span-2`) até `sm`,
+  volta ao grid original em `sm:`.
+- `Hero.tsx`/`Nav.tsx`/`DropsGrid.tsx`/`ContactSection.tsx`: padding
+  horizontal fixo (`px-10`) e `text-[66px]` no H1 do Hero, que estourava a
+  largura em ~360px → padding e tamanho de fonte escalonados
+  (`px-5 sm:px-10`, `text-h2 sm:text-h1 md:text-display`).
+- **Sidebar do dashboard** (`Sidebar.tsx`) era um painel fixo de 220px
+  sempre visível — em 360px sobrava ~140px pro kanban. Convertida pra
+  off-canvas: escondida por padrão em mobile (`-translate-x-full`,
+  `md:translate-x-0` fixo), acionada por um botão hambúrguer novo no
+  `Topbar.tsx` (`md:hidden`), estado (`sidebarOpen`) levantado pro
+  `DashboardBoard.tsx` (componente pai já client) por ser compartilhado
+  entre os dois irmãos.
+- **`LeadDrawer.tsx`** tinha `w-[420px]` fixo, estourava horizontalmente em
+  mobile. Convertido em bottom-sheet abaixo de `sm` (`inset-x-0 bottom-0
+  max-h-[85vh] rounded-t-xl`) e volta a ser painel lateral de 420px a partir
+  de `sm:`. Estes dois casos (sidebar → off-canvas, drawer → bottom-sheet)
+  são exatamente os exemplos que o próprio `SKILL.md` já citava como
+  "componente que ainda não existe no design system pra funcionar bem em
+  mobile — construa, não pule a responsividade" — tratado como
+  pré-autorizado por essa cláusula, sem pausar pra confirmar (diferente de
+  uma decisão de design system nova, tipo cor semântica).
+
+**Acessibilidade**:
+- `Footer.tsx`: os "links" de navegação eram `<span className="cursor-pointer">`
+  sem `href`, sem foco de teclado, sem role — resolve a pendência já
+  registrada acima em "Pendências de acessibilidade herdadas do design
+  system". Como não existem páginas de destino reais neste teste técnico,
+  virou `<button type="button">` (não `<a href="#">`) — testado com
+  `biome check`, que rejeita `href="#"` como URL inválida
+  (`lint/a11y/useValidAnchor`); `<button>` é semanticamente correto pra um
+  elemento clicável sem navegação real.
+- `DropsGrid.tsx`: o `<Select>` de filtro de raridade não tinha `label` nem
+  `aria-label` — só existia visualmente ao lado do texto "CARDS", sem
+  associação programática. Adicionado `aria-label="Filtrar por raridade"`.
+- `Sidebar.tsx`: item de nav ativo (`Leads`) ganhou `aria-current="page"`.
+
+**Design system (tokens em vez de valores arbitrários)**: varredura por
+`text-\[[0-9]+px\]` / `tracking-\[...\]` / `rounded-\[...\]` fora de `ui/*`
+encontrou uso generalizado de pixels arbitrários (`text-[14px]`,
+`text-[22px]`, `tracking-[-0.02em]` etc.) em `Hero`, `Nav`, `ContactSection`,
+`DropsGrid`, `Footer`, `Sidebar`, `Topbar`, `KanbanBoard`, `LeadDrawer` e
+`app/login/page.tsx`, mesmo quando havia token exato equivalente
+(`text-micro`=11px, `text-caption`=12px, `text-body-sm`=13px, etc.) —
+provavelmente sobra da importação do design system original (ver seção
+"Design system importado via Claude Design"), que não usava os tokens do
+`@theme` de forma consistente. Trocado por tokens em todos os arquivos
+citados. Não mexido: `Avatar.tsx` (`text-[10px]/[13px]/[17px]` pro
+tamanho das iniciais, acoplado ao tamanho do próprio avatar, não é texto de
+corpo) — sinalizado aqui, não decidido unilateralmente que deveria virar
+token.
+
+**Validação**: `biome check` limpo (só resta 1 warning pré-existente,
+`noImgElement` em `Avatar.tsx`, fora do escopo desta varredura) e
+`tsc --noEmit` sem erros. **Não validado visualmente em navegador** — este
+ambiente não tem `chromium-cli`/Playwright/Puppeteer instalado, então as
+mudanças de layout responsivo (grid stacking, off-canvas sidebar,
+bottom-sheet) não foram vistas renderizadas, só revisadas por código. Fica
+como próximo passo manual antes de considerar essa varredura 100% fechada.

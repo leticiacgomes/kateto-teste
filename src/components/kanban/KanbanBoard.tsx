@@ -99,17 +99,17 @@ function Column({
   const total = items.reduce((sum, l) => sum + l.skinPrice, 0);
 
   return (
-    <div className="flex max-h-full w-[280px] shrink-0 flex-col rounded-[10px] border border-line-subtle bg-surface-1">
+    <div className="flex max-h-full w-[280px] shrink-0 flex-col rounded-card border border-line-subtle bg-surface-1">
       <div className="flex items-center justify-between border-b border-line-subtle px-3.5 py-3">
         <div className="flex items-center gap-2.5">
           <span className={cn("h-2 w-2 rounded-full", s.dot, s.glow)} />
-          <span className="font-display text-[14px] font-semibold text-fg-strong">
+          <span className="font-display text-body font-semibold text-fg-strong">
             {s.label}
           </span>
           <Badge>{items.length}</Badge>
         </div>
         {total > 0 && (
-          <span className="font-mono text-[11px] text-fg-faint">
+          <span className="font-mono text-micro text-fg-faint">
             ${total.toLocaleString()}
           </span>
         )}
@@ -126,7 +126,7 @@ function Column({
             <SortableCard key={lead.id} lead={lead} onOpen={onOpen} />
           ))}
           {items.length === 0 && (
-            <div className="py-4.5 text-center font-mono text-[11px] text-fg-faint">
+            <div className="py-4.5 text-center font-mono text-micro text-fg-faint">
               Vazio
             </div>
           )}

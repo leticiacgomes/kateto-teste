@@ -8,9 +8,9 @@ function scrollToContact() {
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line-subtle bg-surface-app/72 px-10 py-4 backdrop-blur-[14px]">
+    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-line-subtle bg-surface-app/72 px-5 py-4 backdrop-blur-[14px] sm:px-10">
       <div className="flex items-center gap-10">
-        <div className="font-display text-[22px] font-bold tracking-[-0.04em] text-fg-strong">
+        <div className="font-display text-h4 font-bold tracking-heading text-fg-strong">
           dropbase
           <span className="text-brand [text-shadow:0_0_12px_var(--color-magenta-glow)]">
             .

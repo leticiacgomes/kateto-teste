@@ -9,14 +9,18 @@ import { Topbar } from "@/components/kanban/Topbar";
 
 export function DashboardBoard({ leads }: { leads: DrawerLead[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [moveState, dispatchMove] = useActionState(moveLeadAction, {});
   const openLead = leads.find((lead) => lead.id === openId) ?? null;
 
   return (
-    <div className="relative flex h-screen">
-      <Sidebar />
+    <div className="relative flex h-screen overflow-hidden">
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar totalLeads={leads.length} />
+        <Topbar
+          totalLeads={leads.length}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
         {moveState.serverError && (
           <div className="border-b border-danger/40 bg-danger/12 px-6 py-2 font-ui text-body-sm text-danger">
             {moveState.serverError}
