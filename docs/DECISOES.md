@@ -103,3 +103,7 @@ Pelo tempo apertado, não implementei CI/CD completo,
 separação de ambientes (staging/produção) e testes de integração
 (banco real, subindo a aplicação). Ficou só Vitest unitário pra lógica de
 round robin e services/actions (mockando Prisma), decisão por conta da priorização. 
+
+## Cloud Design
+
+Utilizei para criar meu design system.
