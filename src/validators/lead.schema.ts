@@ -7,23 +7,22 @@ import { LeadStatus } from "../../generated/prisma/enums";
 const PHONE_DIGITS_REGEX = /^\d{10,11}$/;
 
 export const createLeadSchema = zfd.formData({
-  name: zfd.text(
-    z
-      .string()
-      .trim()
-      .min(2, "Informe seu nome completo.")
-      .max(120, "Nome muito longo."),
-  ),
-  phone: zfd.text(
-    z
-      .string()
-      .trim()
-      .transform((value) => value.replace(/\D/g, ""))
-      .refine(
-        (digits) => PHONE_DIGITS_REGEX.test(digits),
-        "Informe um telefone válido com DDD.",
-      ),
-  ),
+  // name/phone usam z.string() puro (não zfd.text): zfd.text() converte ""
+  // em undefined antes de validar, o que faz o campo vazio cair no erro
+  // genérico de tipo do Zod em vez das mensagens customizadas abaixo.
+  name: z
+    .string()
+    .trim()
+    .min(2, "Informe seu nome completo.")
+    .max(120, "Nome muito longo."),
+  phone: z
+    .string()
+    .trim()
+    .transform((value) => value.replace(/\D/g, ""))
+    .refine(
+      (digits) => PHONE_DIGITS_REGEX.test(digits),
+      "Informe um telefone válido com DDD.",
+    ),
   cardId: zfd.text(z.string().trim().min(1, "Selecione um card.")),
 });
 

@@ -57,7 +57,11 @@ export function ContactSection({ cardOptions }: { cardOptions: CardOption[] }) {
               </div>
             </div>
           ) : (
-            <form action={formAction} className="flex flex-col gap-4">
+            <form
+              action={formAction}
+              noValidate
+              className="flex flex-col gap-4"
+            >
               <Input
                 name="name"
                 label="Nome"
