@@ -25,61 +25,61 @@ zod + next-safe-action nas Server Actions, Vitest.
 ```
 src/
   app/
-    page.tsx                       # landing pública
+    page.tsx                    
     login/
-      page.tsx                     # login da área logada
+      page.tsx                    
     (dashboard)/
       dashboard/
-        page.tsx                   # kanban (protegido por proxy.ts)
+        page.tsx                  
     api/
-      auth/[...nextauth]/route.ts  # única rota HTTP exigida pelo NextAuth
+      auth/[...nextauth]/route.ts
     layout.tsx
     globals.css
 
   actions/
-    lead.actions.ts                # Server Action: criar lead + round robin
-    leadCard.actions.ts            # Server Action: mover card do lead entre colunas
-    auth.actions.ts                # Server Action: login
+    lead.actions.ts                
+    leadCard.actions.ts            
+    auth.actions.ts                
 
   components/
-    public/                        # seções da landing
-    kanban/                        # colunas, card do lead, drag context (dnd-kit)
-    auth/                          # LoginForm
-    ui/                            # design system (display/forms/surfaces)
+    public/                       
+    kanban/                       
+    auth/                         
+    ui/                            
 
   services/
-    lead.service.ts                # orquestra criação de lead + round robin (transaction)
-    round-robin.service.ts         # regra pura do round robin (sem I/O)
-    leadCard.service.ts            # mover/reordenar card do lead entre colunas
+    lead.service.ts              
+    round-robin.service.ts        
+    leadCard.service.ts           
     auth.service.ts
 
   repositories/
-    lead.repository.ts             # queries Prisma de Lead
-    roundRobin.repository.ts       # ponteiro do round robin
+    lead.repository.ts             
+    roundRobin.repository.ts       
     representative.repository.ts
     card.repository.ts
     user.repository.ts
 
   validators/
-    lead.schema.ts                 # validação zod do formulário
+    lead.schema.ts                
 
   lib/
     prisma.ts
-    safe-action.ts                 # wrapper next-safe-action
+    safe-action.ts                
     cn.ts
     format.ts
 
   middlewares/
-    auth.middleware.ts             # authActionClient p/ Server Actions autenticadas
+    auth.middleware.ts            
 
   styles/
     design-system/styles.css
 
-  auth.ts                          # config do NextAuth (Credentials provider)
-  proxy.ts                         # middleware (renomeado nesta versão do Next) — protege /dashboard e /login
+  auth.ts                          
+  proxy.ts                         
 
 tests/
-  unit/                            # testes vitest (round-robin, lead, card, auth services/actions)
+  unit/                            
 ```
 
 Ver `CLAUDE.md` para as convenções de código que regem essa estrutura (Server
