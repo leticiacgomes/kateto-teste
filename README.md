@@ -1,12 +1,14 @@
 # Dropbase
 
 Landing page + CRM simples para venda de figurinhas/cards de DJs de música
-eletrônica — teste técnico. Duas partes: vitrine pública com formulário de
+eletrônica. Duas partes: vitrine pública com formulário de
 contato, e uma área logada com kanban de leads (4 colunas fixas) distribuídos
 automaticamente entre 5 vendedores em round robin.
 
-Ver `CLAUDE.md` para as convenções de código, e `docs/DECISOES.md` para o
-racional das decisões técnicas e trade-offs considerados.
+Ver `CLAUDE.md` para as convenções de código, `docs/ARQUITETURA.md` para como
+front, back, dados, autenticação e distribuição de leads conversam entre si,
+e `docs/DECISOES.md` para o racional das decisões técnicas (versão resumida
+— o log completo, com todo o debugging, está em `docs/DECISOES-COMPLETO.md`).
 
 ## Stack
 
@@ -130,3 +132,21 @@ pelo seed para criar o usuário admin). Default se omitidos:
 ```bash
 pnpm test   # vitest — lógica de round robin e demais services/actions
 ```
+
+## Status / o que falta
+
+O core do teste está funcional: landing pública com form de contato, round
+robin distribuindo os leads entre os 5 vendedores, kanban com drag-and-drop
+persistindo posição/coluna, e login protegendo a área logada. O que ficou
+pra trás por falta de tempo, sem ser bloqueante:
+
+- `Lead.position` é `Int` simples — mover um card entre dois outros
+  renumera a coluna inteira em vez de usar fractional indexing (padrão
+  Trello). Funciona bem no volume esperado; ver `docs/DECISOES.md`.
+- Filtro de raridade na vitrine é praticamente inerte — o schema ainda não
+  tem campo de raridade real, então todo card cai em "common".
+- Responsividade (sidebar off-canvas, drawer virando bottom-sheet em
+  mobile) foi revisada por código, não vista rodando num navegador de
+  verdade — este ambiente de dev não tinha browser disponível pra isso.
+- `AUTH_SECRET` do `.env` local foi gerado só pra dev — precisa ser
+  regenerado antes de qualquer deploy real.
