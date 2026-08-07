@@ -1,3 +1,4 @@
+// biome-ignore assist/source/organizeImports: <need to keep the import order for vitest mocks>
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/services/lead.service", () => ({
