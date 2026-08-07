@@ -13,7 +13,7 @@ e `docs/DECISOES.md` para o racional das decisões técnicas (versão resumida
 ## Stack
 
 Next.js (App Router) + TypeScript, Tailwind CSS, Prisma ORM + Postgres,
-NextAuth (Credentials) na área logada, @dnd-kit no drag-and-drop do kanban,
+NextAuth (Credentials), @dnd-kit no drag-and-drop do kanban,
 zod + next-safe-action nas Server Actions, Vitest.
 
 ## Arquitetura de pastas
