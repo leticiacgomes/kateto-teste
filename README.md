@@ -1,3 +1,5 @@
+<img src="public/logo.png" alt="Dropbase" width="160" />
+
 # Dropbase
 
 Landing page + CRM simples para venda de figurinhas/cards de DJs de música
