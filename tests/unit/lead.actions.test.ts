@@ -4,10 +4,16 @@ vi.mock("@/services/lead.service", () => ({
   leadService: { createLead: vi.fn() },
 }));
 
+// `revalidatePath` assume um request scope do App Router que não existe
+// sob Vitest.
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
 import { createLeadAction } from "@/actions/lead.actions";
 import { leadService } from "@/services/lead.service";
+import { revalidatePath } from "next/cache";
 
 const createLeadMock = vi.mocked(leadService.createLead);
+const revalidatePathMock = vi.mocked(revalidatePath);
 
 function buildFormData(
   fields: Partial<Record<"name" | "phone" | "cardId", string>>,
@@ -21,6 +27,7 @@ function buildFormData(
 
 beforeEach(() => {
   createLeadMock.mockReset();
+  revalidatePathMock.mockReset();
 });
 
 describe("createLeadAction", () => {
@@ -52,6 +59,9 @@ describe("createLeadAction", () => {
       cardId: "card-1",
     });
     expect(result.data).toEqual({ success: true });
+    // Regressão: sem isso o dashboard fica servindo a versão em cache e o
+    // lead recém-criado só aparece após outra mutação revalidar a rota.
+    expect(revalidatePathMock).toHaveBeenCalledWith("/dashboard");
   });
 
   it("retorna validationErrors e não chama o service quando os campos são inválidos", async () => {
@@ -63,6 +73,7 @@ describe("createLeadAction", () => {
     expect(result.validationErrors?.fieldErrors?.name).toBeTruthy();
     expect(result.validationErrors?.fieldErrors?.phone).toBeTruthy();
     expect(result.validationErrors?.fieldErrors?.cardId).toBeTruthy();
+    expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 
   it("retorna erro genérico quando o service falha", async () => {
@@ -79,5 +90,6 @@ describe("createLeadAction", () => {
     expect(result.serverError).toBe(
       "Não foi possível concluir a operação. Tente novamente.",
     );
+    expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 });
