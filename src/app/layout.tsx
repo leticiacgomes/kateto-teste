@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Dropbase",
-  description: "O crate de figurinhas dos DJs que fazem a cena eletrônica.",
+  description: "O app de figurinhas dos DJs que fazem a cena eletrônica.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
