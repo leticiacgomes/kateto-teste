@@ -7,10 +7,12 @@ eletrônica. Duas partes: vitrine pública com formulário de
 contato, e uma área logada com kanban de leads (4 colunas fixas) distribuídos
 automaticamente entre 5 vendedores em round robin.
 
-Ver `CLAUDE.md` para as convenções de código, `docs/ARQUITETURA.md` para como
-front, back, dados, autenticação e distribuição de leads conversam entre si,
-e `docs/DECISOES.md` para o racional das decisões técnicas (versão resumida
-— o log completo, com todo o debugging, está em `docs/DECISOES-COMPLETO.md`).
+Consulte a documentação do projeto:
+
+- [`CLAUDE.md`](./CLAUDE.md): convenções de código.
+- [`docs/ARQUITETURA.md`](./docs/ARQUITETURA.md): como front, back, dados, autenticação e distribuição de leads conversam entre si.
+- [`docs/DECISOES.md`](./docs/DECISOES.md): racional das decisões técnicas (versão resumida).
+- [`docs/DECISOES-COMPLETO.md`](./docs/DECISOES-COMPLETO.md): histórico completo das decisões e debugging.
 
 ## Stack
 
